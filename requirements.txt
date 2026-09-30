@@ -42,7 +42,7 @@ primp==2.0.1
     # via ddgs
 protobuf==6.33.6
     # via databricks-sdk
-psycopg==3.3.6
+psycopg[binary]==3.3.6
     # via -r requirements.in
 psycopg-binary==3.3.6
     # via psycopg
@@ -85,7 +85,7 @@ urllib3==2.8.0
     # via
     #   databricks-sdk
     #   requests
-uvicorn==0.53.0
+uvicorn[standard]==0.54.0
     # via -r requirements.in
 uvloop==0.22.1
     # via uvicorn
