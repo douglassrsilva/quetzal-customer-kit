@@ -12,7 +12,7 @@ resources:
   apps:
     quetzal_app:
       name: ${var.app_name}
-      description: Quetzal Telecom · centro de comando operacional e inteligência governada
+      description: Quetzal Telecom · centro de comando operativo e inteligencia gobernada
       source_code_path: ..
       lifecycle:
         started: true
@@ -97,13 +97,13 @@ resources:
             space_id: ${resources.genie_spaces.quetzal_genie_clientes.id}
             permission: CAN_RUN
         - name: genie-red
-          description: Inteligência operacional de rede
+          description: Inteligencia operativa de red
           genie_space:
             name: genie-red
             space_id: ${resources.genie_spaces.quetzal_genie_red.id}
             permission: CAN_RUN
         - name: graph-intelligence-job
-          description: Snapshot relacional y scoring de grafo ejecutados únicamente bajo demanda
+          description: Snapshot relacional y puntuación del grafo ejecutados únicamente bajo demanda
           job:
             id: ${resources.jobs.quetzal_graph_intelligence.id}
             permission: CAN_MANAGE_RUN

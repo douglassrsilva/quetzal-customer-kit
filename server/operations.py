@@ -306,9 +306,9 @@ def _customer_explainability(profile: dict) -> dict:
     code_labels = {
         "HIGH_RISK_NETWORK_EXPOSURE": "Exposición elevada a contactos con riesgo alto",
         "HIGH_NETWORK_INFLUENCE": "Alcance elevado dentro de la red de contactos (snapshot legado)",
-        "HIGH_NETWORK_REACH": "Alcance elevado dentro da rede de contatos",
-        "HIGH_RISK_DIFFUSION": "Alta proximidade a sementes de risco no grafo ponderado",
-        "RELATIONSHIP_BRIDGE": "Cliente conecta partes pouco densas da rede",
+        "HIGH_NETWORK_REACH": "Alcance elevado dentro de la red de contactos",
+        "HIGH_RISK_DIFFUSION": "Alta proximidad a focos de riesgo en el grafo ponderado",
+        "RELATIONSHIP_BRIDGE": "El cliente conecta zonas poco densas de la red",
         "CROSS_BORDER_REACH": "Alcance de contactos en tres o más países",
         "GRAPH_RISK_UPLIFT": "Código legado de enriquecimiento; no altera la probabilidad v3",
     }

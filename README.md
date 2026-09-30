@@ -1,26 +1,34 @@
 # Quetzal Customer Kit
 
-Kit privado e reproduzível para implantar o Quetzal em um workspace Databricks controlado pelo cliente. O repositório contém o App React/FastAPI, Databricks Asset Bundle, fundação Terraform, contratos de dados e runbooks operacionais.
+Kit privado y reproducible para desplegar Quetzal en un workspace de Databricks controlado por el cliente. El repositorio contiene la aplicación React/FastAPI, Databricks Asset Bundle, la base de Terraform, contratos de datos y guías operativas.
 
-## Princípios
+## Acceso controlado al código
 
-- nenhum host, ID, usuário, token ou dado do ambiente de origem;
-- Terraform administra a fundação; DAB administra os artefatos Databricks;
-- Unity Catalog e compute serverless por padrão;
-- nenhum job recorrente: bootstrap, memória, alertas e grafo são manuais;
-- conectores e pesquisa externa permanecem desabilitados até aprovação explícita;
-- dados reais nunca são armazenados no Git;
-- produção possui `prevent_destroy` e aprovação humana.
+Antes de clonar el kit, confirme en GitHub que el repositorio aparece como **Private** y que solo los equipos autorizados tienen acceso. La visibilidad privada evita exponer la topología de despliegue, aunque no reemplaza la sanitización ni permite almacenar secretos en Git.
 
-## Início rápido
+![Repositorio privado de Quetzal Customer Kit](docs/screenshots/assets/01-repository-private.png)
 
-Pré-requisitos: Python 3.11+, Node.js 20+, Terraform 1.7+, Databricks CLI 0.229+ e um perfil OAuth do workspace de destino.
+*Figura 1 — Repositorio privado. Compruebe la etiqueta **Private**; el nombre de usuario y otros datos de la sesión fueron ocultados deliberadamente.*
+
+## Principios
+
+- ningún host, ID, usuario, token ni dato del entorno de origen;
+- Terraform administra la base; DAB administra los artefactos de Databricks;
+- Unity Catalog y cómputo serverless de forma predeterminada;
+- ningún job recurrente: bootstrap, memoria, alertas y grafo son manuales;
+- los conectores y la investigación externa permanecen deshabilitados hasta recibir aprobación explícita;
+- los datos reales nunca se almacenan en Git;
+- producción cuenta con `prevent_destroy` y aprobación humana.
+
+## Inicio rápido
+
+Requisitos previos: Python 3.11+, Node.js 20+, Terraform 1.7+, Databricks CLI 0.229+ y un perfil OAuth del workspace de destino.
 
 ```bash
 cp config/customer.env.example config/customer.env
 cp terraform/environments/dev/dev.tfvars.example terraform/environments/dev/dev.tfvars
 
-# Substitua todos os exemplos antes de continuar.
+# Reemplace todos los valores de ejemplo antes de continuar.
 make preflight
 make sanitize
 
@@ -37,55 +45,55 @@ make bootstrap TARGET=dev
 make memory TARGET=dev
 ```
 
-`synthetic-data` executa um único job serverless manual com duas tarefas: geração e certificação. A execução falha se volumes, schemas, chaves, regras contábeis, segurança da PII fictícia ou cobertura das jornadas da demo estiverem incorretos. Para fontes reais, não execute esse job: implemente os adapters do modo `customer`.
+`synthetic-data` ejecuta un único job serverless manual con dos tareas: generación y certificación. La ejecución falla si los volúmenes, esquemas, claves, reglas contables, seguridad de la PII ficticia o cobertura de los recorridos de la demo son incorrectos. Para fuentes reales, no ejecute este job: implemente los adaptadores del modo `customer`.
 
-O grafo é intencionalmente separado e só deve ser executado quando um novo snapshot for necessário:
+El grafo está separado de forma intencional y solo debe ejecutarse cuando sea necesario generar un nuevo snapshot:
 
 ```bash
 make graph TARGET=dev
 ```
 
-## Modos de dados
+## Modos de datos
 
-- `synthetic`: fontes telecom determinísticas, sem PII real, para demonstração e testes.
-- `customer`: views de adaptação implementadas pelo cliente sobre as fontes governadas existentes.
+- `synthetic`: fuentes de telecomunicaciones deterministas, sin PII real, para demostraciones y pruebas.
+- `customer`: vistas de adaptación implementadas por el cliente sobre sus fuentes gobernadas.
 
-O contrato canônico está em `data_contracts/`. A implantação do App não concede acesso automático a fontes do cliente.
+El contrato canónico se encuentra en `data_contracts/`. El despliegue de la aplicación no concede acceso automático a las fuentes del cliente.
 
-## Ordem de leitura
+## Orden de lectura
 
-1. [Visão geral](docs/00-overview.md)
-2. [Pré-requisitos](docs/01-prerequisites.md)
+1. [Descripción general](docs/00-overview.md)
+2. [Requisitos previos](docs/01-prerequisites.md)
 3. [Terraform](docs/02-terraform.md)
-4. [Deploy com DAB](docs/03-dab-deploy.md)
+4. [Despliegue con DAB](docs/03-dab-deploy.md)
 5. [Bootstrap](docs/04-bootstrap.md)
-6. [Validação](docs/05-validation.md)
-7. [Operação](docs/06-operations.md)
-8. [Segurança](docs/07-security.md)
-9. [Roteiro de capturas](docs/screenshots/README.md)
+6. [Validación](docs/05-validation.md)
+7. [Operación](docs/06-operations.md)
+8. [Seguridad](docs/07-security.md)
+9. [Trazabilidad de las capturas utilizadas en las guías](docs/screenshots/README.md)
 
 ## Componentes
 
 ```text
-Terraform foundation
-  └─ grupos, catálogo/schema, grants e SQL Warehouse
+Base Terraform
+  └─ grupos, catálogo/esquema, permisos y SQL Warehouse
 
 Databricks Asset Bundle
   ├─ Databricks App
-  ├─ AI/BI Dashboard
-  ├─ Genie Spaces
-  ├─ Lakebase database binding
-  └─ jobs manuais
+  ├─ dashboard AI/BI
+  ├─ espacios Genie
+  ├─ vinculación de base de datos Lakebase
+  └─ jobs manuales
 
-Quetzal App
+Aplicación Quetzal
   ├─ React + TypeScript
   ├─ FastAPI
   ├─ Unity Catalog / Databricks SQL
   ├─ Unity AI Gateway
   ├─ Lakebase + Managed Agent Memory
-  └─ OntoBricks contract
+  └─ contrato OntoBricks
 ```
 
-## Suporte
+## Soporte
 
-Abra uma issue privada com o resultado de `make sanitize`, `make bundle-validate` e o identificador da execução com falha. Nunca inclua tokens, PII ou arquivos de state.
+Abra una issue privada con el resultado de `make sanitize`, `make bundle-validate` y el identificador de la ejecución fallida. Nunca incluya tokens, PII ni archivos de state.

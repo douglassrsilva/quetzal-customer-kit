@@ -1,6 +1,6 @@
-# Bootstrap operacional
+# Bootstrap operativo
 
-No modo de demonstração, gere e certifique as fontes antes do contrato e do bootstrap:
+En el modo de demostración, genere y certifique las fuentes antes de validar el contrato y ejecutar el bootstrap:
 
 ```bash
 make synthetic-data TARGET=dev
@@ -10,14 +10,14 @@ make memory TARGET=dev
 make alerts TARGET=dev
 ```
 
-`synthetic-data` não possui agenda. Sua segunda tarefa certifica volumes, schemas, chaves, regras de negócio e cobertura das jornadas da demo. No modo `customer`, não execute esse job: publique os adapters governados e comece por `make data-contract`.
+`synthetic-data` no tiene programación. Su segunda tarea certifica volúmenes, esquemas, claves, reglas de negocio y cobertura de los recorridos de la demo. En el modo `customer`, no ejecute este job: publique los adaptadores gobernados y comience con `make data-contract`.
 
-O bootstrap cria tabelas e views operacionais, aplica grants ao service principal do App e pode ser repetido com segurança. Managed Memory e alertas não possuem schedule.
+El bootstrap crea tablas y vistas operativas, aplica permisos al service principal de la aplicación y puede repetirse de forma segura. Managed Memory y las alertas no tienen programación.
 
-Graph Intelligence é uma ação administrativa separada:
+Graph Intelligence es una acción administrativa independiente:
 
 ```bash
 make graph TARGET=dev
 ```
 
-O job prepara tabelas temporárias, valida volumes e publica um snapshot apenas ao final. Fazer deploy nunca executa o grafo automaticamente.
+El job prepara tablas temporales, valida volúmenes y publica un snapshot únicamente al finalizar. El despliegue nunca ejecuta el grafo de forma automática.

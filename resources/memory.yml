@@ -2,7 +2,7 @@ resources:
   jobs:
     quetzal_memory_foundation:
       name: "[${bundle.target}] Quetzal | Managed Memory Foundation"
-      description: Provisiona e valida o Managed Agent Memory do Quetzal IQ. Execução exclusivamente manual.
+      description: Aprovisiona y valida Managed Agent Memory de Quetzal IQ. Ejecución exclusivamente manual.
       max_concurrent_runs: 1
       timeout_seconds: 1800
       queue:
@@ -30,4 +30,3 @@ resources:
             client: "4"
             dependencies:
               - "databricks-sdk>=0.63.0,<1"
-

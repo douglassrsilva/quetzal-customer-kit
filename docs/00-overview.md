@@ -1,20 +1,20 @@
-# Visão geral
+# Descripción general
 
-O Quetzal conecta operações de rede, impacto no cliente, receita, churn e decisões humanas. A separação de ownership é deliberada:
+Quetzal conecta operaciones de red, impacto en el cliente, ingresos, churn y decisiones humanas. La separación de responsabilidades es deliberada:
 
-| Camada | Dono | Ferramenta |
+| Capa | Responsable | Herramienta |
 |---|---|---|
-| Identidade, catálogo, schema, grants e Warehouse | Plataforma do cliente | Terraform |
-| App, jobs, Genie e AI/BI | Produto Quetzal | DAB |
-| Tokens, webhooks e credenciais | Segurança do cliente | Secret manager |
-| Dados e políticas de acesso | Data owners do cliente | Unity Catalog |
+| Identidad, catálogo, esquema, permisos y Warehouse | Plataforma del cliente | Terraform |
+| Aplicación, jobs, Genie y AI/BI | Producto Quetzal | DAB |
+| Tokens, webhooks y credenciales | Seguridad del cliente | Gestor de secretos |
+| Datos y políticas de acceso | Responsables de datos del cliente | Unity Catalog |
 
-O mesmo recurso nunca deve ser gerenciado simultaneamente por Terraform e DAB. Lakebase project/branch/endpoint são pré-requisitos; o database binding do App permanece no bundle.
+Un mismo recurso nunca debe administrarse simultáneamente con Terraform y DAB. El proyecto, la rama y el endpoint de Lakebase son requisitos previos; la vinculación de la base de datos con la aplicación permanece en el bundle.
 
-## Ambientes
+## Entornos
 
-- `dev`: desenvolvimento isolado por usuário.
-- `staging`: validação integrada e evidências de aceite.
-- `prod`: promoção aprovada, sem execução automática de jobs caros.
+- `dev`: desarrollo aislado por usuario.
+- `staging`: validación integrada y evidencias de aceptación.
+- `prod`: promoción aprobada, sin ejecución automática de jobs costosos.
 
-Cada ambiente usa state Terraform, identidade, App e configuração próprios.
+Cada entorno utiliza su propio state de Terraform, identidad, aplicación y configuración.

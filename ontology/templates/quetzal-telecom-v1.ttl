@@ -8,26 +8,26 @@
 <{{ontology_base_uri}}/ontology> a owl:Ontology ;
   owl:versionInfo "1.0.0" ;
   rdfs:label "Quetzal Telecom Knowledge Graph"@en ;
-  rdfs:comment "Ontologia governada para clientes, serviço, relacionamento e decisões de retenção. qualifiedContact representa associação observada e nunca causalidade de churn."@pt .
+  rdfs:comment "Ontología gobernada para clientes, servicio, relaciones y decisiones de retención. qualifiedContact representa una asociación observada, nunca causalidad de churn."@es .
 
-qz:Customer a owl:Class ; rdfs:label "Cliente"@pt ; ontobricks:icon "👤" .
+qz:Customer a owl:Class ; rdfs:label "Cliente"@es ; ontobricks:icon "👤" .
 qz:QualifiedContact a owl:Class ;
-  rdfs:label "Contato qualificado"@pt ;
-  rdfs:comment "Relação derivada de recorrência, duração, reciprocidade e recência; não implica vínculo pessoal nem influência causal."@pt ;
+  rdfs:label "Contacto calificado"@es ;
+  rdfs:comment "Relación derivada de recurrencia, duración, reciprocidad y actualidad; no implica vínculo personal ni influencia causal."@es ;
   ontobricks:icon "🔗" .
-qz:RelationshipGroup a owl:Class ; rdfs:label "Grupo de relações"@pt ; ontobricks:icon "🕸️" .
-qz:Country a owl:Class ; rdfs:label "País"@pt ; ontobricks:icon "🌎" .
-qz:Plan a owl:Class ; rdfs:label "Plano"@pt ; ontobricks:icon "📱" .
-qz:Product a owl:Class ; rdfs:label "Produto"@pt ; ontobricks:icon "📦" .
-qz:Ticket a owl:Class ; rdfs:label "Ticket de atendimento"@pt ; ontobricks:icon "🎧" .
-qz:SLA a owl:Class ; rdfs:label "Compromisso de SLA"@pt ; ontobricks:icon "⏱️" .
-qz:Recommendation a owl:Class ; rdfs:label "Recomendação"@pt ; ontobricks:icon "💡" .
-qz:Campaign a owl:Class ; rdfs:label "Campanha"@pt ; ontobricks:icon "📣" .
+qz:RelationshipGroup a owl:Class ; rdfs:label "Grupo de relaciones"@es ; ontobricks:icon "🕸️" .
+qz:Country a owl:Class ; rdfs:label "País"@es ; ontobricks:icon "🌎" .
+qz:Plan a owl:Class ; rdfs:label "Plan"@es ; ontobricks:icon "📱" .
+qz:Product a owl:Class ; rdfs:label "Producto"@es ; ontobricks:icon "📦" .
+qz:Ticket a owl:Class ; rdfs:label "Ticket de atención"@es ; ontobricks:icon "🎧" .
+qz:SLA a owl:Class ; rdfs:label "Compromiso de SLA"@es ; ontobricks:icon "⏱️" .
+qz:Recommendation a owl:Class ; rdfs:label "Recomendación"@es ; ontobricks:icon "💡" .
+qz:Campaign a owl:Class ; rdfs:label "Campaña"@es ; ontobricks:icon "📣" .
 
 qz:qualifiedContact a owl:ObjectProperty, owl:SymmetricProperty ;
-  rdfs:label "possui contato qualificado"@pt ;
+  rdfs:label "tiene contacto calificado"@es ;
   rdfs:domain qz:Customer ; rdfs:range qz:Customer ;
-  rdfs:comment "Atalho navegável. Os atributos auditáveis ficam na instância reificada QualifiedContact."@pt .
+  rdfs:comment "Atajo navegable. Los atributos auditables permanecen en la instancia reificada QualifiedContact."@es .
 qz:contactSource a owl:ObjectProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range qz:Customer .
 qz:contactTarget a owl:ObjectProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range qz:Customer .
 qz:locatedIn a owl:ObjectProperty ; rdfs:domain qz:Customer ; rdfs:range qz:Country .
@@ -42,19 +42,19 @@ qz:recommendedProduct a owl:ObjectProperty ; rdfs:domain qz:Customer ; rdfs:rang
 qz:targetsCustomer a owl:ObjectProperty ; rdfs:domain qz:Campaign ; rdfs:range qz:Customer .
 
 qz:baselineChurnProbability a owl:DatatypeProperty ;
-  rdfs:label "probabilidade individual de churn"@pt ;
+  rdfs:label "probabilidad individual de churn"@es ;
   rdfs:domain qz:Customer ; rdfs:range xsd:double .
 qz:retentionPriorityScore a owl:DatatypeProperty ;
-  rdfs:label "prioridade de retenção"@pt ;
-  rdfs:comment "Score operacional 0–100; não é probabilidade."@pt ;
+  rdfs:label "prioridad de retención"@es ;
+  rdfs:comment "Puntuación operativa de 0 a 100; no es una probabilidad."@es ;
   rdfs:domain qz:Customer ; rdfs:range xsd:double .
 qz:networkReachScore a owl:DatatypeProperty ;
-  rdfs:label "alcance na rede"@pt ;
-  rdfs:comment "Percentil composto que inclui PageRank ponderado; não representa influência causal."@pt ;
+  rdfs:label "alcance en la red"@es ;
+  rdfs:comment "Percentil compuesto que incluye PageRank ponderado; no representa influencia causal."@es ;
   rdfs:domain qz:Customer ; rdfs:range xsd:double .
 qz:networkExposureScore a owl:DatatypeProperty ;
-  rdfs:label "exposição relacional"@pt ;
-  rdfs:comment "Sinal 0–100 derivado do risco de contatos e difusão; não é probabilidade de contágio."@pt ;
+  rdfs:label "exposición relacional"@es ;
+  rdfs:comment "Señal de 0 a 100 derivada del riesgo de los contactos y la difusión; no es una probabilidad de contagio."@es ;
   rdfs:domain qz:Customer ; rdfs:range xsd:double .
 qz:callCount a owl:DatatypeProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range xsd:long .
 qz:contactMinutes a owl:DatatypeProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range xsd:double .

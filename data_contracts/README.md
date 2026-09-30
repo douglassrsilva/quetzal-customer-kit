@@ -1,18 +1,18 @@
-# Contrato canônico de dados
+# Contrato canónico de datos
 
-O App consulta somente o modelo canônico neste schema. Clientes podem preenchê-lo com o gerador sintético aprovado ou com views de adaptação sobre fontes governadas.
+La aplicación consulta únicamente el modelo canónico de este esquema. El cliente puede poblarlo con el generador sintético aprobado o con vistas de adaptación sobre fuentes gobernadas.
 
-## Fontes obrigatórias
+## Fuentes obligatorias
 
-| Domínio | Tabelas |
+| Dominio | Tablas |
 |---|---|
-| Referência | `bronze_segmentos`, `bronze_planes`, `bronze_torres_red` |
+| Referencia | `bronze_segmentos`, `bronze_planes`, `bronze_torres_red` |
 | Cliente | `silver_clientes`, `silver_suscripciones` |
-| Receita | `silver_facturas` |
-| Experiência | `silver_tickets`, `silver_nps`, `silver_cdrs` |
-| Rede | `silver_telemetria_red` |
+| Ingresos | `silver_facturas` |
+| Experiencia | `silver_tickets`, `silver_nps`, `silver_cdrs` |
+| Red | `silver_telemetria_red` |
 | ML | `silver_churn_features`, `gold_churn_predictions`, `gold_clv_segments` |
 
-As demais tabelas `gold_*`, `mv_*` e `ops_*` são derivadas. Chaves principais não devem ser reutilizadas entre ambientes. Campos de PII exigem masking e acesso territorial no modo customer.
+Las demás tablas `gold_*`, `mv_*` y `ops_*` son derivadas. Las claves principales no deben reutilizarse entre entornos. Los campos con PII requieren enmascaramiento y acceso territorial en el modo `customer`.
 
-O plano completo da carga sintética está em [docs/08-data-generation-plan.md](../docs/08-data-generation-plan.md).
+El plan completo de la carga sintética se encuentra en [docs/08-data-generation-plan.md](../docs/08-data-generation-plan.md).

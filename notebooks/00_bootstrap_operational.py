@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS {fq}.ops_incident_state (
   updated_at TIMESTAMP NOT NULL,
   updated_by STRING NOT NULL
 ) USING DELTA
-COMMENT 'Estado transacional dos incidentes derivados da operação de rede'
+COMMENT 'Estado transaccional de los incidentes derivados de la operación de red'
 TBLPROPERTIES ('project'='quetzal', 'managed_by'='dabs', 'data_classification'='synthetic')
 """)
 
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS {fq}.ops_action_log (
   decided_at TIMESTAMP,
   decision_note STRING
 ) USING DELTA
-COMMENT 'Ações operacionais, aprovações humanas e trilha de decisão'
+COMMENT 'Acciones operativas, aprobaciones humanas y trazabilidad de decisiones'
 TBLPROPERTIES ('project'='quetzal', 'managed_by'='dabs', 'data_classification'='synthetic')
 """)
 
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS {fq}.ops_alert_subscriptions (
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL
 ) USING DELTA
-COMMENT 'Assinaturas e regras de alerta personalizadas por operador'
+COMMENT 'Suscripciones y reglas de alerta personalizadas por operador'
 TBLPROPERTIES ('project'='quetzal', 'managed_by'='dabs', 'data_classification'='synthetic')
 """)
 
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS {fq}.ops_audit_log (
   event_at TIMESTAMP NOT NULL,
   detail_json STRING
 ) USING DELTA
-COMMENT 'Evidência auditável das mudanças realizadas pelo Quetzal Command Center'
+COMMENT 'Evidencia auditable de los cambios realizados por Quetzal Command Center'
 TBLPROPERTIES ('project'='quetzal', 'managed_by'='dabs', 'data_classification'='synthetic')
 """)
 
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS {fq}.ops_sla_policy (
   policy_source STRING NOT NULL,
   updated_at TIMESTAMP NOT NULL
 ) USING DELTA
-COMMENT 'Referências operacionais de atendimento por segmento; não substituem o contrato individual do cliente'
+COMMENT 'Referencias operativas de atención por segmento; no sustituyen el contrato individual del cliente'
 TBLPROPERTIES ('project'='quetzal', 'managed_by'='dabs', 'data_classification'='synthetic')
 """)
 
@@ -265,7 +265,7 @@ TBLPROPERTIES ('project'='quetzal', 'managed_by'='dabs', 'data_classification'='
 
 sql(f"""
 CREATE OR REPLACE VIEW {fq}.ops_incident_candidates
-COMMENT 'Incidentes candidatos derivados de anomalias, telemetria, tickets e risco comercial'
+COMMENT 'Incidentes candidatos derivados de anomalías, telemetría, tickets y riesgo comercial'
 AS
 WITH anomaly_anchor AS (
   SELECT MAX(timestamp) AS max_ts FROM {fq}.gold_network_anomalies
@@ -331,7 +331,7 @@ QUALIFY ROW_NUMBER() OVER (PARTITION BY a.torre_id ORDER BY a.anomaly_score DESC
 
 sql(f"""
 CREATE OR REPLACE VIEW {fq}.ops_customer_360
-COMMENT 'Perfil individual governado com valor, risco, experiência, cobrança e compromissos de serviço'
+COMMENT 'Perfil individual gobernado con valor, riesgo, experiencia, cobro y compromisos de servicio'
 AS
 WITH latest_churn AS (
   SELECT * FROM {fq}.gold_churn_predictions
@@ -412,7 +412,7 @@ LEFT JOIN {fq}.ops_customer_sla_effective sla ON c.cliente_id = sla.customer_id
 
 sql(f"""
 CREATE OR REPLACE VIEW {fq}.ops_customer_next_best_offer
-COMMENT 'Ofertas explicáveis por cliente, excluindo planos já contratados e respeitando o segmento'
+COMMENT 'Ofertas explicables por cliente, excluyendo planes ya contratados y respetando el segmento'
 AS
 WITH existing AS (
   SELECT s.cliente_id,

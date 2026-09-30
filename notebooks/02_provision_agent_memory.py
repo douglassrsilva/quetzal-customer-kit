@@ -2,8 +2,8 @@
 # MAGIC %md
 # MAGIC # Quetzal IQ · Managed Agent Memory
 # MAGIC
-# MAGIC Provisiona idempotentemente o Memory Store governado e concede somente ao
-# MAGIC service principal do Databricks App permissão de leitura e escrita.
+# MAGIC Aprovisiona de forma idempotente el Memory Store gobernado y concede únicamente al
+# MAGIC service principal de Databricks App permisos de lectura y escritura.
 
 # COMMAND ----------
 

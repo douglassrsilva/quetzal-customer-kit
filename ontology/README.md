@@ -1,16 +1,7 @@
 # Quetzal + OntoBricks
 
-O contrato de integração é a tabela Unity Catalog
-`gold_quetzal_knowledge_graph_triples`. As três primeiras colunas seguem o
-contrato nativo do OntoBricks (`subject`, `predicate`, `object`); as demais
-preservam tipo do objeto, linhagem, execução e data de geração.
+El contrato de integración es la tabla de Unity Catalog `gold_quetzal_knowledge_graph_triples`. Las tres primeras columnas siguen el contrato nativo de OntoBricks (`subject`, `predicate`, `object`); las demás conservan el tipo de objeto, linaje, ejecución y fecha de generación.
 
-Execute `make render` e importe `build/generated/ontology/quetzal-telecom-v1.ttl`
-como ontologia do domínio `quetzal-telecom`. Em seguida,
-aponte a sincronização Lakehouse para a tabela de triplas. O snapshot é gerado
-somente pelo job manual DAB `quetzal_graph_intelligence`.
+Ejecute `make render` e importe `build/generated/ontology/quetzal-telecom-v1.ttl` como ontología del dominio `quetzal-telecom`. A continuación, dirija la sincronización Lakehouse a la tabla de triples. El snapshot se genera únicamente mediante el job manual DAB `quetzal_graph_intelligence`.
 
-O analytics genérico do OntoBricks converte relações em um grafo não direcionado
-e sem pesos. Para churn, o Quetzal mantém os algoritmos ponderados no pipeline
-próprio e usa o OntoBricks para semântica, navegação, validação e GraphQL/MCP.
-Isso evita descartar frequência, duração, recência e reciprocidade.
+La analítica genérica de OntoBricks convierte las relaciones en un grafo no dirigido y sin pesos. Para churn, Quetzal conserva los algoritmos ponderados en su propio pipeline y utiliza OntoBricks para semántica, navegación, validación y GraphQL/MCP. De esta forma no se descartan la frecuencia, la duración, la recencia ni la reciprocidad.

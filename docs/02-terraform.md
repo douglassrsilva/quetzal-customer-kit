@@ -1,18 +1,18 @@
-# Fundação Terraform
+# Base de Terraform
 
-## Configuração
+## Configuración
 
 ```bash
 cp terraform/environments/dev/dev.tfvars.example terraform/environments/dev/dev.tfvars
 ```
 
-Escolha explicitamente entre criar recursos dedicados e reutilizar recursos existentes. Para um catálogo compartilhado, mantenha `create_catalog = false`; o módulo cria apenas o schema dedicado e não altera grants de outros schemas.
+Elija explícitamente entre crear recursos dedicados y reutilizar recursos existentes. Para un catálogo compartido, mantenga `create_catalog = false`; el módulo crea únicamente el esquema dedicado y no modifica los permisos de otros esquemas.
 
 ## State remoto
 
-Copie `backend.tf.example` para `backend.tf` e configure um backend criptografado e com locking pertencente ao cliente. State pode conter IDs internos e não deve ser anexado a issues nem armazenado no Git.
+Copie `backend.tf.example` a `backend.tf` y configure un backend cifrado, con bloqueo y propiedad del cliente. El state puede contener IDs internos y no debe adjuntarse a issues ni almacenarse en Git.
 
-## Fluxo aprovado
+## Flujo aprobado
 
 ```bash
 terraform -chdir=terraform/environments/dev fmt -check -recursive
@@ -24,6 +24,6 @@ terraform -chdir=terraform/environments/dev apply tfplan
 terraform -chdir=terraform/environments/dev output bundle_values
 ```
 
-Um segundo `plan` deve retornar zero mudanças. Catálogo e schema possuem `prevent_destroy`. Para recursos existentes, o cliente continua responsável por permissões fora do schema Quetzal.
+Un segundo `plan` debe devolver cero cambios. El catálogo y el esquema cuentan con `prevent_destroy`. Para los recursos existentes, el cliente sigue siendo responsable de los permisos fuera del esquema de Quetzal.
 
-Lakebase não é criado por este módulo: capacidades e recursos disponíveis variam por workspace. Registre project, branch, endpoint, host e owner role em `config/customer.env`; o DAB cria/vincula apenas o database dedicado.
+Este módulo no crea Lakebase: las capacidades y los recursos disponibles varían según el workspace. Registre el proyecto, la rama, el endpoint, el host y el rol propietario en `config/customer.env`; DAB crea y vincula únicamente la base de datos dedicada.

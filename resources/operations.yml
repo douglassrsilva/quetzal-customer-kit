@@ -2,7 +2,7 @@ resources:
   jobs:
     quetzal_operational_bootstrap:
       name: "[${bundle.target}] Quetzal | Bootstrap operacional"
-      description: Cria tabelas Delta, views de incidentes e grants necessários ao centro de comando.
+      description: Crea tablas Delta, vistas de incidentes y permisos necesarios para el centro de comando.
       max_concurrent_runs: 1
       timeout_seconds: 1800
       tags:

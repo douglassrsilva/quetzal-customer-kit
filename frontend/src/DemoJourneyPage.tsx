@@ -8,7 +8,7 @@ import { api, money, number, post } from './api'
 const COUNTRIES = ['ALL','PA','MX','CO','BR','AR','CL','PE','EC','CR','GT','DO','UY']
 const FLAGS:Record<string,string>={PA:'🇵🇦',MX:'🇲🇽',CO:'🇨🇴',BR:'🇧🇷',AR:'🇦🇷',CL:'🇨🇱',PE:'🇵🇪',EC:'🇪🇨',CR:'🇨🇷',GT:'🇬🇹',DO:'🇩🇴',UY:'🇺🇾'}
 const STEP_DETAILS:Record<string,string>={
-  PREFLIGHT:'Confirma Warehouse, Genie, IQ, memória, AI/BI e permissões sem executar inferência.',
+  PREFLIGHT:'Confirma Warehouse, Genie, IQ, memoria, AI/BI y permisos sin ejecutar inferencia.',
   INCIDENT:'Revisa severidad, causa probable, SLA y evidencia operacional.',
   VOICE_OF_CUSTOMER:'Identifica temas, presión de experiencia y clientes afectados con evidencia gobernada.',
   CUSTOMER_360:'Abre la historia completa de un cliente prioritario del mismo mercado.',
@@ -81,7 +81,7 @@ function FinancialImpact({initialCountry}:{initialCountry:string}){
     return[
       {label:'Churn esperado evitado',value:number(value.estimated_avoided_churners??0),detail:'clientes equivalentes',icon:<UserRound/>},
       {label:'Receita protegida',value:money(value.estimated_retained_revenue_usd??0),detail:`horizonte de ${horizon} meses`,icon:<DollarSign/>},
-      {label:'Custo de intervenção',value:money(value.estimated_contact_cost_usd??treated*cost),detail:`${number(result?.scope?.treated_customers??treated,true)} contatos`,icon:<ClipboardCheck/>},
+      {label:'Costo de intervención',value:money(value.estimated_contact_cost_usd??treated*cost),detail:`${number(result?.scope?.treated_customers??treated,true)} contactos`,icon:<ClipboardCheck/>},
       {label:'Benefício líquido',value:money(value.estimated_net_impact_usd??0),detail:`ROI ${value.estimated_roi_pct==null?'—':`${number(value.estimated_roi_pct)}%`}`,icon:<CheckCircle2/>},
     ]
   },[result,horizon,treated,cost])

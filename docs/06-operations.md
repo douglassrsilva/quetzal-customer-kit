@@ -1,18 +1,18 @@
-# Operação
+# Operación
 
 ## Jobs
 
-| Job | Frequência | Custo esperado |
+| Job | Frecuencia | Costo esperado |
 |---|---|---|
-| Geração e certificação sintética | manual, preparação/reset da demo | baixo a moderado |
-| Bootstrap operacional | manual, instalação/mudança de schema | baixo |
-| Managed Memory Foundation | manual | baixo |
-| Motor de alertas | manual pelo App | baixo |
-| Graph Intelligence | manual e aprovado | maior |
+| Generación y certificación sintética | manual, preparación o reinicio de la demo | bajo a moderado |
+| Bootstrap operativo | manual, instalación o cambio de esquema | bajo |
+| Managed Memory Foundation | manual | bajo |
+| Motor de alertas | manual desde la aplicación | bajo |
+| Graph Intelligence | manual y aprobado | mayor |
 
-Nenhum job deve receber `schedule` ou `trigger` sem uma mudança revisada.
+Ningún job debe recibir un `schedule` o `trigger` sin un cambio revisado.
 
-O job sintético usa `max_concurrent_runs=1`, falha fechado ao encontrar tabelas não pertencentes ao kit e nunca deve ser executado no schema de fontes reais do cliente.
+El job sintético utiliza `max_concurrent_runs=1`, falla de forma segura al encontrar tablas que no pertenecen al kit y nunca debe ejecutarse en el esquema de fuentes reales del cliente.
 
 ## Logs
 
@@ -20,8 +20,8 @@ O job sintético usa `max_concurrent_runs=1`, falha fechado ao encontrar tabelas
 databricks apps logs "$BUNDLE_VAR_app_name" --tail-lines 500 --profile "$DATABRICKS_CONFIG_PROFILE"
 ```
 
-Não copie payloads contendo PII para issues. Use trace IDs, run IDs e mensagens redigidas.
+No copie payloads con PII en las issues. Utilice trace IDs, run IDs y mensajes redactados.
 
-## Conectores e egress
+## Conectores y salida de red
 
-CRM/BSS/OSS e pesquisa externa iniciam desabilitados. Habilite-os somente após allowlist de destino, segredo em cofre do cliente, timeout, idempotência e aprovação humana.
+CRM/BSS/OSS y la investigación externa comienzan deshabilitados. Habilítelos únicamente después de aprobar la lista de destinos, guardar el secreto en la bóveda del cliente y validar timeout, idempotencia y aprobación humana.

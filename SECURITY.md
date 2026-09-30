@@ -1,3 +1,3 @@
-# Security policy
+# Política de seguridad
 
-This repository is private. Report vulnerabilities through the customer's approved private security channel. Do not create public issues or attach credentials, Terraform state, browser storage, HAR files, production data, or unredacted screenshots.
+Este repositorio es privado. Reporte vulnerabilidades mediante el canal privado de seguridad aprobado por el cliente. No cree issues públicas ni adjunte credenciales, state de Terraform, almacenamiento del navegador, archivos HAR, datos de producción o capturas sin redactar.
