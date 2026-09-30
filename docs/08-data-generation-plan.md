@@ -4,7 +4,7 @@
 **Seed:** 42  
 **Compute:** Serverless, somente quando o job manual for executado  
 **Output:** `${catalog}.${schema}.*`  
-**Volume:** aproximadamente 350 mil linhas antes do Graph Intelligence
+**Volume:** 369.568 linhas canônicas com 10 mil clientes, antes das derivações gold e do Graph Intelligence
 
 Nenhum nome, e-mail ou telefone representa uma pessoa real. Identidades seguem `Cliente Demo 000001`, `customer000001@example.com` e números deliberadamente não roteáveis.
 
@@ -182,9 +182,9 @@ O mesmo job deriva, sem aleatoriedade adicional:
 | `gold_network_health` | `hora`, `pais_codigo`, `total_mediciones`, `avg_latencia_ms`, `avg_packet_loss_pct`, `avg_throughput_mbps`, `avg_uso_capacidad_pct`, `torres_en_alerta`, `uptime_pct` | telemetria horária |
 | `gold_network_anomalies` | `torre_id`, `pais_codigo`, `ciudad`, `tecnologia`, `timestamp`, `usuarios_conectados`, `uso_capacidad_pct`, `latencia_ms`, `packet_loss_pct`, `throughput_mbps`, `temperatura_equipo_c`, `alerta`, `is_anomaly`, `anomaly_score`, `anomaly_severity`, `scored_at` | regras transparentes, não Isolation Forest |
 | `gold_subscriber_metrics` | `mes`, `pais_codigo`, `segmento_id`, `clientes_activos`, `suscripciones_activas`, `suscripciones_nuevas`, `suscripciones_canceladas`, `tasa_churn_pct` | clientes + assinaturas |
-| `gold_billing_health` | `mes`, `pais_codigo`, `num_facturas`, `facturacion_total_usd`, `monto_pagado_usd`, `monto_vencido_usd`, `pct_pagada`, `pct_vencida`, `tasa_cobro_pct`, `avg_dias_atraso` | faturas |
-| `gold_revenue_by_country_service` | `mes`, `pais_codigo`, `vertical`, `total_revenue_usd`, `ingresos_totales_usd`, `num_facturas`, `unique_customers` | faturas + assinaturas + planos |
-| `gold_arpu_by_segment` | `mes`, `pais_codigo`, `segmento_id`, `total_revenue_usd`, `unique_customers`, `arpu_usd` | receita/clientes únicos |
+| `gold_billing_health` | `mes`, `pais_codigo`, `num_facturas`, `facturacion_total_usd`, `monto_pagado_usd`, `monto_vencido_usd`, `pct_pagada`, `pct_vencida`, `tasa_cobro_pct`, `avg_dias_atraso`, `cartera_vencida_usd` | faturas |
+| `gold_revenue_by_country_service` | `mes`, `pais_codigo`, `vertical`, `total_revenue_usd`, `ingresos_totales_usd`, `ingresos_cobrados_usd`, `num_facturas`, `unique_customers` | faturas + assinaturas + planos |
+| `gold_arpu_by_segment` | `mes`, `pais_codigo`, `segmento_id`, `total_revenue_usd`, `unique_customers`, `clientes_unicos`, `arpu_usd` | receita/clientes únicos |
 
 ## Relações
 
@@ -201,4 +201,5 @@ O mesmo job deriva, sem aleatoriedade adicional:
 - validação de identificadores e volumes antes de qualquer escrita;
 - `data_classification=synthetic` em todas as tabelas;
 - job sem schedule, `max_concurrent_runs=1`;
+- certificação bloqueante com fingerprint determinístico, integridade referencial e cobertura das jornadas da demo;
 - resumo final com volumes, seed e timestamps.

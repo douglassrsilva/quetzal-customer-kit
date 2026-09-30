@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SKIP_DIRS = {".git", ".terraform", ".venv", "node_modules", ".pytest_cache", ".ruff_cache", "__pycache__"}
+SKIP_DIRS = {".databricks", ".git", ".terraform", ".venv", "node_modules", ".pytest_cache", ".ruff_cache", "__pycache__"}
 TEXT_SUFFIXES = {
     "", ".css", ".env", ".example", ".html", ".ini", ".js", ".json", ".lock",
     ".md", ".py", ".sh", ".sql", ".toml", ".ts", ".tsx", ".ttl", ".txt", ".yaml", ".yml",

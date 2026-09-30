@@ -1,5 +1,6 @@
 .bundle/
 .databricks/
+**/.databricks/
 .env
 .env.*
 !.env.example
@@ -13,6 +14,7 @@ terraform/**/*.tfvars
 .pytest_cache/
 .ruff_cache/
 .venv/
+uv.lock
 **/__pycache__/
 **/*.py[cod]
 frontend/node_modules/

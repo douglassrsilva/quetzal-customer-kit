@@ -1,0 +1,37 @@
+resources:
+  jobs:
+    quetzal_generate_synthetic_sources:
+      name: "[${bundle.target}] Quetzal | Generate and certify synthetic demo data"
+      description: Generates deterministic telecom demo sources and certifies the canonical contract. Manual only; never scheduled.
+      max_concurrent_runs: 1
+      timeout_seconds: 3600
+      tags:
+        project: quetzal
+        workload: synthetic-data
+        managed_by: dabs
+        data_classification: synthetic
+        execution_mode: manual-only
+      tasks:
+        - task_key: generate_synthetic_sources
+          notebook_task:
+            notebook_path: ../notebooks/00_generate_synthetic_sources.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              customer_count: ${var.synthetic_customer_count}
+              seed: ${var.synthetic_seed}
+              anchor_date: ${var.synthetic_anchor_date}
+              overwrite_confirmation: SYNTHETIC_DEMO_ONLY
+          timeout_seconds: 2700
+        - task_key: certify_synthetic_sources
+          depends_on:
+            - task_key: generate_synthetic_sources
+          notebook_task:
+            notebook_path: ../notebooks/00_certify_synthetic_sources.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              customer_count: ${var.synthetic_customer_count}
+              seed: ${var.synthetic_seed}
+              anchor_date: ${var.synthetic_anchor_date}
+          timeout_seconds: 900

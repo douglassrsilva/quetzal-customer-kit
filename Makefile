@@ -1,7 +1,7 @@
 PYTHON ?= python3
 TARGET ?= dev
 
-.PHONY: sanitize render preflight test frontend-build bundle-validate bundle-deploy data-contract bootstrap memory alerts graph
+.PHONY: sanitize render preflight test frontend-build bundle-validate bundle-deploy synthetic-data data-contract bootstrap memory alerts graph
 
 sanitize:
 	$(PYTHON) scripts/sanitize_check.py
@@ -23,6 +23,9 @@ bundle-validate: render
 
 bundle-deploy: sanitize frontend-build render
 	./scripts/bundle.sh deploy -t $(TARGET)
+
+synthetic-data:
+	./scripts/bundle.sh run -t $(TARGET) quetzal_generate_synthetic_sources
 
 data-contract:
 	./scripts/bundle.sh run -t $(TARGET) quetzal_validate_data_contract

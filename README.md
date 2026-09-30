@@ -31,10 +31,13 @@ terraform -chdir=terraform/environments/dev apply tfplan
 make frontend-build
 make bundle-validate TARGET=dev
 make bundle-deploy TARGET=dev
+make synthetic-data TARGET=dev
 make data-contract TARGET=dev
 make bootstrap TARGET=dev
 make memory TARGET=dev
 ```
+
+`synthetic-data` executa um único job serverless manual com duas tarefas: geração e certificação. A execução falha se volumes, schemas, chaves, regras contábeis, segurança da PII fictícia ou cobertura das jornadas da demo estiverem incorretos. Para fontes reais, não execute esse job: implemente os adapters do modo `customer`.
 
 O grafo é intencionalmente separado e só deve ser executado quando um novo snapshot for necessário:
 

@@ -207,7 +207,7 @@ MERGE INTO {fq}.ops_sla_policy AS target
 USING (
   SELECT * FROM VALUES
     ('PER', 'Quetzal Life Care', 24D, 72D, 99.0D, false, 'SEGMENT_REFERENCE', 24D, 'MON-SUN', 'UTC', 2D, current_timestamp()),
-    ('BIZ', 'Quetzal Biz Priority', 4D, 24D, 99.5D, true, 'SEGMENT_CONTRACT', 12D, 'MON-SAT', 'America/Mexico_City', 5D, current_timestamp()),
+    ('COM', 'Quetzal Comercial Priority', 4D, 24D, 99.5D, true, 'SEGMENT_CONTRACT', 12D, 'MON-SAT', 'America/Mexico_City', 5D, current_timestamp()),
     ('ENT', 'Quetzal Enterprise Mission Critical', 1D, 8D, 99.9D, true, 'SEGMENT_CONTRACT', 24D, 'MON-SUN', 'UTC', 10D, current_timestamp())
   AS policy(segment_id, policy_name, first_response_target_hours, resolution_target_hours,
             service_target_pct, contractual, policy_source, business_hours_per_day, business_days,

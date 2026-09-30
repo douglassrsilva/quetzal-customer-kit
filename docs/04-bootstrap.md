@@ -1,13 +1,16 @@
 # Bootstrap operacional
 
-Execute somente depois que as tabelas canônicas estiverem disponíveis:
+No modo de demonstração, gere e certifique as fontes antes do contrato e do bootstrap:
 
 ```bash
+make synthetic-data TARGET=dev
 make data-contract TARGET=dev
 make bootstrap TARGET=dev
 make memory TARGET=dev
 make alerts TARGET=dev
 ```
+
+`synthetic-data` não possui agenda. Sua segunda tarefa certifica volumes, schemas, chaves, regras de negócio e cobertura das jornadas da demo. No modo `customer`, não execute esse job: publique os adapters governados e comece por `make data-contract`.
 
 O bootstrap cria tabelas e views operacionais, aplica grants ao service principal do App e pode ser repetido com segurança. Managed Memory e alertas não possuem schedule.
 
