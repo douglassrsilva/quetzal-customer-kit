@@ -1,0 +1,12 @@
+# Rename to backend.tf and configure exactly one customer-owned encrypted backend.
+# Never commit access keys. Example for S3:
+#
+# terraform {
+#   backend "s3" {
+#     bucket       = "customer-terraform-state"
+#     key          = "quetzal/dev/terraform.tfstate"
+#     region       = "us-east-1"
+#     encrypt      = true
+#     use_lockfile = true
+#   }
+# }

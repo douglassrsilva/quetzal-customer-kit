@@ -1,0 +1,268 @@
+{
+  "config": {
+    "sample_questions": [
+      {
+        "id": "a3cc81b806298fe0581d978bedbb66b0",
+        "question": [
+          "Cual es el revenue total por pais en el ultimo mes?"
+        ]
+      },
+      {
+        "id": "e35b5050d1a8b3be813bfe0c5b233773",
+        "question": [
+          "Como ha evolucionado el ARPU por segmento mes a mes?"
+        ]
+      },
+      {
+        "id": "bda59e1e23d23513e387f042639a9df1",
+        "question": [
+          "Cual es la tasa de cobro y morosidad por pais?"
+        ]
+      },
+      {
+        "id": "4ee1429f329ddbcce1cc86dce836b984",
+        "question": [
+          "Top 10 clientes por gasto mensual total"
+        ]
+      },
+      {
+        "id": "c7aa73c45c13081a9114f6cbe86b371c",
+        "question": [
+          "Cuantas facturas estan vencidas por mas de 30 dias por pais?"
+        ]
+      },
+      {
+        "id": "6767d4c3e732c8fb7109edd6a0ee70e4",
+        "question": [
+          "Revenue por vertical (Movil, Internet, TV, Fija, Bundles) por pais"
+        ]
+      }
+    ]
+  },
+  "data_sources": {
+    "tables": [
+      {
+        "identifier": "{{catalog}}.{{schema}}.gold_arpu_by_segment"
+      },
+      {
+        "identifier": "{{catalog}}.{{schema}}.gold_billing_health"
+      },
+      {
+        "identifier": "{{catalog}}.{{schema}}.gold_revenue_by_country_service"
+      },
+      {
+        "identifier": "{{catalog}}.{{schema}}.silver_clientes"
+      },
+      {
+        "identifier": "{{catalog}}.{{schema}}.silver_facturas"
+      },
+      {
+        "identifier": "{{catalog}}.{{schema}}.silver_suscripciones"
+      }
+    ]
+  },
+  "instructions": {
+    "text_instructions": [{
+      "content": [
+        "Responde en el idioma de la pregunta: español latinoamericano o portugués de Brasil.",
+        "Todos los datos son sintéticos y demostrativos. Informa siempre el período de la fuente consultada.",
+        "Para KPIs operativos mensuales usa el último mes cerrado y excluye el mes corriente y proyecciones futuras.",
+        "Agrega valores monetarios entre países solamente en USD.",
+        "No expongas PII ni identificadores completos de clientes; usa agregaciones por país, segmento y servicio.",
+        "Separa ingreso facturado, ingreso cobrado, cartera vencida y ARPU; no los uses como sinónimos.",
+        "Si una métrica no existe, declara la limitación y no inventes valores."
+      ]
+    }],
+    "example_question_sqls": [
+      {
+        "id": "e0f7d594aa3908dc3bf626ee24a2cab8",
+        "question": [
+          "Revenue total por pais en el ultimo mes"
+        ],
+        "sql": [
+          "SELECT pais_codigo, SUM(total_revenue_usd) AS revenue_total\n",
+          "FROM {{catalog}}.{{schema}}.gold_revenue_by_country_service\n",
+          "WHERE mes = (SELECT MAX(mes) FROM {{catalog}}.{{schema}}.gold_revenue_by_country_service)\n",
+          "GROUP BY pais_codigo\n",
+          "ORDER BY revenue_total DESC"
+        ]
+      },
+      {
+        "id": "16d653eea4b685a631a89133e1ef5864",
+        "question": [
+          "Evolucion del ARPU por segmento mes a mes"
+        ],
+        "sql": [
+          "SELECT mes, segmento_id, \n",
+          "  SUM(total_revenue_usd) / NULLIF(SUM(unique_customers), 0) AS arpu_usd\n",
+          "FROM {{catalog}}.{{schema}}.gold_arpu_by_segment\n",
+          "GROUP BY mes, segmento_id\n",
+          "ORDER BY mes, segmento_id"
+        ]
+      },
+      {
+        "id": "8e78b00748223aaf903caac8f7cd6d6d",
+        "question": [
+          "Tasa de cobro y morosidad por pais"
+        ],
+        "sql": [
+          "SELECT pais_codigo, \n",
+          "  AVG(pct_pagada) AS pct_pagada_avg,\n",
+          "  AVG(pct_vencida) AS pct_vencida_avg,\n",
+          "  AVG(tasa_cobro_pct) AS tasa_cobro_avg,\n",
+          "  AVG(avg_dias_atraso) AS dias_atraso_avg\n",
+          "FROM {{catalog}}.{{schema}}.gold_billing_health\n",
+          "GROUP BY pais_codigo\n",
+          "ORDER BY tasa_cobro_avg DESC"
+        ]
+      },
+      {
+        "id": "ca27944280efa2cfdb605d7573538b70",
+        "question": [
+          "Top 10 clientes por gasto mensual"
+        ],
+        "sql": [
+          "SELECT c.cliente_id, c.pais_codigo, c.segmento_id,\n",
+          "  SUM(f.monto_total_usd) AS total_facturado,\n",
+          "  COUNT(f.factura_id) AS num_facturas\n",
+          "FROM {{catalog}}.{{schema}}.silver_facturas f\n",
+          "JOIN {{catalog}}.{{schema}}.silver_clientes c ON f.cliente_id = c.cliente_id\n",
+          "GROUP BY c.cliente_id, c.pais_codigo, c.segmento_id\n",
+          "ORDER BY total_facturado DESC\n",
+          "LIMIT 10"
+        ]
+      },
+      {
+        "id": "1d7ef45bdcdbd57a67a583292919f328",
+        "question": [
+          "Revenue por vertical y pais"
+        ],
+        "sql": [
+          "SELECT pais_codigo, vertical, \n",
+          "  SUM(total_revenue_usd) AS revenue_total\n",
+          "FROM {{catalog}}.{{schema}}.gold_revenue_by_country_service\n",
+          "GROUP BY pais_codigo, vertical\n",
+          "ORDER BY pais_codigo, revenue_total DESC"
+        ]
+      },
+      {
+        "id": "c66d6dcfa9dcfef35d79d38d62e82c7d",
+        "question": [
+          "Facturas vencidas por pais con dias de atraso"
+        ],
+        "sql": [
+          "SELECT c.pais_codigo,\n",
+          "  COUNT(*) AS facturas_vencidas,\n",
+          "  AVG(f.dias_atraso) AS avg_dias_atraso,\n",
+          "  MAX(f.dias_atraso) AS max_dias_atraso\n",
+          "FROM {{catalog}}.{{schema}}.silver_facturas f\n",
+          "JOIN {{catalog}}.{{schema}}.silver_clientes c ON f.cliente_id = c.cliente_id\n",
+          "WHERE f.estado_pago = 'vencida'\n",
+          "GROUP BY c.pais_codigo\n",
+          "ORDER BY facturas_vencidas DESC"
+        ]
+      }
+    ],
+    "join_specs": [
+      {
+        "comment": [
+          "Facturas a Suscripciones"
+        ],
+        "id": "bdf669bd5f18bcb5bdd44d97309dd26d",
+        "left": {
+          "identifier": "{{catalog}}.{{schema}}.silver_facturas"
+        },
+        "right": {
+          "identifier": "{{catalog}}.{{schema}}.silver_suscripciones"
+        },
+        "sql": [
+          "silver_facturas.suscripcion_id = silver_suscripciones.suscripcion_id",
+          "--rt=FROM_RELATIONSHIP_TYPE_MANY_TO_ONE--"
+        ]
+      },
+      {
+        "comment": [
+          "Facturas a Clientes"
+        ],
+        "id": "d14e809ee1b16f39a0a11e9ca5f1e2c9",
+        "left": {
+          "identifier": "{{catalog}}.{{schema}}.silver_facturas"
+        },
+        "right": {
+          "identifier": "{{catalog}}.{{schema}}.silver_clientes"
+        },
+        "sql": [
+          "silver_facturas.cliente_id = silver_clientes.cliente_id",
+          "--rt=FROM_RELATIONSHIP_TYPE_MANY_TO_ONE--"
+        ]
+      },
+      {
+        "comment": [
+          "Suscripciones a Clientes"
+        ],
+        "id": "f6a565d8b9c48613f0075744edba7025",
+        "left": {
+          "identifier": "{{catalog}}.{{schema}}.silver_suscripciones"
+        },
+        "right": {
+          "identifier": "{{catalog}}.{{schema}}.silver_clientes"
+        },
+        "sql": [
+          "silver_suscripciones.cliente_id = silver_clientes.cliente_id",
+          "--rt=FROM_RELATIONSHIP_TYPE_MANY_TO_ONE--"
+        ]
+      }
+    ],
+    "sql_snippets": {
+      "expressions": [
+        {
+          "display_name": "Monto neto de factura",
+          "id": "edefc1792558dc81a383bd4c717b26a9",
+          "sql": [
+            "silver_facturas.monto_base_usd + silver_facturas.ajustes_usd"
+          ]
+        }
+      ],
+      "filters": [
+        {
+          "display_name": "Facturas vencidas",
+          "id": "89a669958cae3c2a7871ce697041edca",
+          "sql": [
+            "silver_facturas.estado_pago = 'vencida'"
+          ]
+        },
+        {
+          "display_name": "Facturas vencidas mas de 30 dias",
+          "id": "981ac463616bea33bbd6467a1f0ced29",
+          "sql": [
+            "silver_facturas.estado_pago = 'vencida' AND silver_facturas.dias_atraso > 30"
+          ]
+        }
+      ],
+      "measures": [
+        {
+          "display_name": "Revenue total en USD",
+          "id": "0c9f087f2b0558844bb07068fa3bf0db",
+          "sql": [
+            "SUM(gold_revenue_by_country_service.total_revenue_usd)"
+          ]
+        },
+        {
+          "display_name": "ARPU (Average Revenue Per User)",
+          "id": "557706912b8f77dbea8ad0f01b166d46",
+          "sql": [
+            "SUM(gold_arpu_by_segment.total_revenue_usd) / NULLIF(SUM(gold_arpu_by_segment.unique_customers), 0)"
+          ]
+        },
+        {
+          "display_name": "Tasa de cobro",
+          "id": "2cb8f77b89e1653995c37123ab62eefc",
+          "sql": [
+            "AVG(gold_billing_health.tasa_cobro_pct)"
+          ]
+        }
+      ]
+    }
+  },
+  "version": 2
+}

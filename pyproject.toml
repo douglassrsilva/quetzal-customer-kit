@@ -1,0 +1,9 @@
+[project]
+name = "quetzal-customer-kit"
+version = "3.0.0"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

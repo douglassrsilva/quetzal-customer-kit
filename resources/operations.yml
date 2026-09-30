@@ -1,0 +1,68 @@
+resources:
+  jobs:
+    quetzal_operational_bootstrap:
+      name: "[${bundle.target}] Quetzal | Bootstrap operacional"
+      description: Cria tabelas Delta, views de incidentes e grants necessários ao centro de comando.
+      max_concurrent_runs: 1
+      timeout_seconds: 1800
+      tags:
+        project: quetzal
+        workload: operational-bootstrap
+        managed_by: dabs
+        data_classification: synthetic
+      tasks:
+        - task_key: bootstrap_operational_model
+          notebook_task:
+            notebook_path: ../notebooks/00_bootstrap_operational.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              app_name: ${var.app_name}
+              admin_users: ${var.admin_users}
+          timeout_seconds: 1200
+    quetzal_alert_evaluator:
+      name: "[${bundle.target}] Quetzal | Motor de alertas"
+      description: Evalúa reglas de red, deduplica eventos y alimenta la central de notificaciones.
+      max_concurrent_runs: 1
+      timeout_seconds: 900
+      tags:
+        project: quetzal
+        workload: alert-engine
+        managed_by: dabs
+      tasks:
+        - task_key: evaluate_operational_alerts
+          notebook_task:
+            notebook_path: ../notebooks/01_evaluate_alerts.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+          timeout_seconds: 600
+    quetzal_graph_intelligence:
+      name: "[${bundle.target}] Quetzal | Graph Intelligence manual"
+      description: Genera relaciones calificadas, señales ponderadas de alcance/exposición, prioridad de retención y triplas OntoBricks. Ejecución exclusivamente manual desde Quetzal.
+      max_concurrent_runs: 1
+      timeout_seconds: 3600
+      tags:
+        project: quetzal
+        workload: graph-intelligence
+        managed_by: dabs
+        data_classification: synthetic
+        execution_mode: manual-only
+      tasks:
+        - task_key: build_graph_intelligence_snapshot
+          notebook_task:
+            notebook_path: ../notebooks/03_graph_intelligence.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              app_name: ${var.app_name}
+              node_limit: "60000"
+              edge_count: "300000"
+              window_days: "90"
+              seed: "42"
+              relationship_slots: "3"
+              min_contact_calls: "3"
+              min_contact_minutes: "10"
+              max_contact_recency_days: "60"
+              ontology_base_uri: ${var.ontology_base_uri}
+          timeout_seconds: 3300

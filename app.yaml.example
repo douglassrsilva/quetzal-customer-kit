@@ -1,0 +1,21 @@
+command:
+  - python
+  - -m
+  - uvicorn
+  - app:app
+  - --host
+  - 0.0.0.0
+  - --port
+  - "8000"
+
+# This file is only an example for local troubleshooting. DAB resources/app.yml
+# is the source of truth and injects real resource identifiers at deployment.
+env:
+  - name: QUETZAL_CATALOG
+    value: "<customer_catalog>"
+  - name: QUETZAL_SCHEMA
+    value: "quetzal"
+  - name: DATABRICKS_WAREHOUSE_ID
+    value: "<warehouse_id>"
+  - name: QUETZAL_AI_MODEL
+    value: "<catalog>.<schema>.<model_service>"

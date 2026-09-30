@@ -1,0 +1,100 @@
+bundle:
+  name: quetzal-customer-kit
+
+include:
+  - resources/*.yml
+
+sync:
+  include:
+    - build/generated/**
+    - frontend/dist/**
+  exclude:
+    - .github/**
+    - config/**
+    - dashboards/templates/**
+    - docs/**
+    - frontend/node_modules/**
+    - frontend/src/**
+    - genie_spaces/templates/**
+    - scripts/**
+    - terraform/**
+    - tests/**
+    - .venv/**
+    - .pytest_cache/**
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+
+variables:
+  app_name:
+    description: Unique Databricks App name in the target workspace.
+  catalog:
+    description: Unity Catalog catalog that contains the canonical Quetzal model.
+  schema:
+    description: Unity Catalog schema dedicated to Quetzal.
+  sql_warehouse_id:
+    description: Serverless SQL Warehouse used by the App, Genie and AI/BI.
+  workspace_id:
+    description: Numeric workspace ID used by the embedded AI/BI URL.
+  ai_model:
+    description: Customer-approved Unity AI Gateway model service.
+  admin_users:
+    description: Comma-separated initial Quetzal administrators.
+  app_user_group:
+    description: Workspace group allowed to use the App and read the dashboard.
+  app_admin_group:
+    description: Workspace group allowed to manage the App and dashboard.
+  lakebase_project:
+    description: Existing Lakebase Autoscaling project.
+  lakebase_branch:
+    description: Existing Lakebase branch.
+    default: production
+  lakebase_endpoint:
+    description: Existing Lakebase endpoint.
+    default: primary
+  lakebase_database:
+    description: Dedicated PostgreSQL database name for Quetzal.
+    default: quetzal
+  lakebase_database_resource_id:
+    description: Stable DAB resource ID for the Quetzal PostgreSQL database.
+    default: quetzal
+  lakebase_owner_role:
+    description: Fully qualified Lakebase role that owns the database.
+  lakebase_host:
+    description: Lakebase endpoint hostname without credentials.
+  lakebase_required:
+    description: Fail closed when Lakebase is unavailable.
+    default: "false"
+  managed_memory_store:
+    description: Fully qualified Managed Agent Memory store.
+  ontobricks_url:
+    description: Optional separately deployed OntoBricks URL.
+    default: DISABLED
+  ontobricks_domain:
+    description: OntoBricks domain name for the Quetzal ontology.
+    default: quetzal-telecom
+  ontobricks_version:
+    description: Audited OntoBricks release or source revision.
+    default: NOT_CONFIGURED
+  ontology_base_uri:
+    description: Customer-owned URI prefix used in generated knowledge-graph triples.
+    default: https://quetzal.example
+  external_research_enabled:
+    description: Explicit egress opt-in for public web research.
+    default: "false"
+
+targets:
+  dev:
+    default: true
+    mode: development
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+  staging:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

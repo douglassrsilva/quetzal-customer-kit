@@ -1,0 +1,19 @@
+databricks_host    = "https://customer-workspace.cloud.databricks.com"
+databricks_profile = "customer-dev"
+
+catalog_name   = "acme_telco"
+schema_name    = "quetzal"
+create_catalog = false
+
+create_groups    = true
+user_group_name  = "quetzal-users"
+admin_group_name = "quetzal-admins"
+
+create_warehouse      = true
+existing_warehouse_id = null
+
+tags = {
+  environment = "dev"
+  owner       = "customer-platform-team"
+  cost_center = "demo"
+}

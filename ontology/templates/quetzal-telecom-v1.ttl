@@ -1,0 +1,63 @@
+@prefix qz: <{{ontology_base_uri}}/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ontobricks: <http://ontobricks.com/schema#> .
+
+<{{ontology_base_uri}}/ontology> a owl:Ontology ;
+  owl:versionInfo "1.0.0" ;
+  rdfs:label "Quetzal Telecom Knowledge Graph"@en ;
+  rdfs:comment "Ontologia governada para clientes, serviço, relacionamento e decisões de retenção. qualifiedContact representa associação observada e nunca causalidade de churn."@pt .
+
+qz:Customer a owl:Class ; rdfs:label "Cliente"@pt ; ontobricks:icon "👤" .
+qz:QualifiedContact a owl:Class ;
+  rdfs:label "Contato qualificado"@pt ;
+  rdfs:comment "Relação derivada de recorrência, duração, reciprocidade e recência; não implica vínculo pessoal nem influência causal."@pt ;
+  ontobricks:icon "🔗" .
+qz:RelationshipGroup a owl:Class ; rdfs:label "Grupo de relações"@pt ; ontobricks:icon "🕸️" .
+qz:Country a owl:Class ; rdfs:label "País"@pt ; ontobricks:icon "🌎" .
+qz:Plan a owl:Class ; rdfs:label "Plano"@pt ; ontobricks:icon "📱" .
+qz:Product a owl:Class ; rdfs:label "Produto"@pt ; ontobricks:icon "📦" .
+qz:Ticket a owl:Class ; rdfs:label "Ticket de atendimento"@pt ; ontobricks:icon "🎧" .
+qz:SLA a owl:Class ; rdfs:label "Compromisso de SLA"@pt ; ontobricks:icon "⏱️" .
+qz:Recommendation a owl:Class ; rdfs:label "Recomendação"@pt ; ontobricks:icon "💡" .
+qz:Campaign a owl:Class ; rdfs:label "Campanha"@pt ; ontobricks:icon "📣" .
+
+qz:qualifiedContact a owl:ObjectProperty, owl:SymmetricProperty ;
+  rdfs:label "possui contato qualificado"@pt ;
+  rdfs:domain qz:Customer ; rdfs:range qz:Customer ;
+  rdfs:comment "Atalho navegável. Os atributos auditáveis ficam na instância reificada QualifiedContact."@pt .
+qz:contactSource a owl:ObjectProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range qz:Customer .
+qz:contactTarget a owl:ObjectProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range qz:Customer .
+qz:locatedIn a owl:ObjectProperty ; rdfs:domain qz:Customer ; rdfs:range qz:Country .
+qz:memberOfRelationshipGroup a owl:ObjectProperty ; rdfs:domain qz:Customer ; rdfs:range qz:RelationshipGroup .
+qz:subscribedTo a owl:ObjectProperty ; rdfs:domain qz:Customer ; rdfs:range qz:Plan .
+qz:includesProduct a owl:ObjectProperty ; rdfs:domain qz:Plan ; rdfs:range qz:Product .
+qz:openedBy a owl:ObjectProperty ; rdfs:domain qz:Ticket ; rdfs:range qz:Customer .
+qz:governedBySLA a owl:ObjectProperty ; rdfs:domain qz:Customer ; rdfs:range qz:SLA .
+qz:proposedFor a owl:ObjectProperty ; rdfs:domain qz:Recommendation ; rdfs:range qz:Customer .
+qz:recommendsProduct a owl:ObjectProperty ; rdfs:domain qz:Recommendation ; rdfs:range qz:Product .
+qz:recommendedProduct a owl:ObjectProperty ; rdfs:domain qz:Customer ; rdfs:range qz:Product .
+qz:targetsCustomer a owl:ObjectProperty ; rdfs:domain qz:Campaign ; rdfs:range qz:Customer .
+
+qz:baselineChurnProbability a owl:DatatypeProperty ;
+  rdfs:label "probabilidade individual de churn"@pt ;
+  rdfs:domain qz:Customer ; rdfs:range xsd:double .
+qz:retentionPriorityScore a owl:DatatypeProperty ;
+  rdfs:label "prioridade de retenção"@pt ;
+  rdfs:comment "Score operacional 0–100; não é probabilidade."@pt ;
+  rdfs:domain qz:Customer ; rdfs:range xsd:double .
+qz:networkReachScore a owl:DatatypeProperty ;
+  rdfs:label "alcance na rede"@pt ;
+  rdfs:comment "Percentil composto que inclui PageRank ponderado; não representa influência causal."@pt ;
+  rdfs:domain qz:Customer ; rdfs:range xsd:double .
+qz:networkExposureScore a owl:DatatypeProperty ;
+  rdfs:label "exposição relacional"@pt ;
+  rdfs:comment "Sinal 0–100 derivado do risco de contatos e difusão; não é probabilidade de contágio."@pt ;
+  rdfs:domain qz:Customer ; rdfs:range xsd:double .
+qz:callCount a owl:DatatypeProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range xsd:long .
+qz:contactMinutes a owl:DatatypeProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range xsd:double .
+qz:relationshipWeight a owl:DatatypeProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range xsd:double .
+qz:isReciprocal a owl:DatatypeProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range xsd:boolean .
+qz:qualificationReason a owl:DatatypeProperty ; rdfs:domain qz:QualifiedContact ; rdfs:range xsd:string .

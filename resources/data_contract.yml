@@ -1,0 +1,20 @@
+resources:
+  jobs:
+    quetzal_validate_data_contract:
+      name: "[${bundle.target}] Quetzal | Validate canonical data contract"
+      description: Read-only validation of required tables, columns and non-empty volumes. Manual only.
+      max_concurrent_runs: 1
+      timeout_seconds: 1800
+      tags:
+        project: quetzal
+        workload: data-contract-validation
+        managed_by: dabs
+        execution_mode: manual-only
+      tasks:
+        - task_key: validate_canonical_contract
+          notebook_task:
+            notebook_path: ../notebooks/00_validate_data_contract.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+          timeout_seconds: 1200
