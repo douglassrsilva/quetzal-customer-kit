@@ -262,27 +262,27 @@ def test_genie_agent_mode_returns_full_chart_data_and_mode():
     response.content = (
         'data: {"type":"response.created","response":{"conversation_id":"agent-conv-1"}}\n\n'
         'data: {"type":"response.output_item.done","item":{"type":"function_call",'
-        '"status":"completed","arguments":"{\\"sql\\":\\"SELECT mes, receita, clientes FROM gold\\",'
-        '\\"title\\":\\"Evolução\\"}"}}\n\n'
+        '"status":"completed","arguments":"{\\"sql\\":\\"SELECT mes, ingresos, clientes FROM gold\\",'
+        '\\"title\\":\\"Evolución\\"}"}}\n\n'
         'data: {"type":"response.output_item.done","item":{"type":"function_call_output",'
-        '"output":"**Evolução**\\n\\n| mes | receita | clientes |\\n|---|---:|---:|\\n'
+        '"output":"**Evolución**\\n\\n| mes | ingresos | clientes |\\n|---|---:|---:|\\n'
         '| 2026-01 | 100 | 8 |\\n| 2026-02 | 120 | 9 |"}}\n\n'
         'data: {"type":"response.output_item.done","item":{"type":"message","status":"completed",'
-        '"content":[{"type":"output_text","text":"A receita aumentou."}]}}\n\n'
+        '"content":[{"type":"output_text","text":"Los ingresos aumentaron."}]}}\n\n'
     ).encode()
     with patch.object(quetzal.http_requests, "post", return_value=response) as post_request, patch.object(
         quetzal, "_headers", return_value={"Authorization": "Bearer test"}
     ):
         result = quetzal._genie_agent_call(
-            {"id": "space-1", "name": "Receita"},
-            "Analise a evolução",
+            {"id": "space-1", "name": "Ingresos"},
+            "Analiza la evolución",
             "agent-conv-existing",
         )
 
     assert result["mode"] == "agent"
     assert result["conversation_id"] == "agent-conv-1"
     chart = next(attachment for attachment in result["attachments"] if attachment["type"] == "chart_data")
-    assert [column["name"] for column in chart["columns"]] == ["mes", "receita", "clientes"]
+    assert [column["name"] for column in chart["columns"]] == ["mes", "ingresos", "clientes"]
     assert chart["row_count"] == 2
     assert post_request.call_args.kwargs["json"]["conversation_id"] == "agent-conv-existing"
 

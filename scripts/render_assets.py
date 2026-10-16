@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render customer-neutral AI/BI, Genie and ontology templates."""
+"""Genera los artefactos de AI/BI, Genie y ontología a partir de las plantillas."""
 
 from __future__ import annotations
 
@@ -17,13 +17,13 @@ URI = re.compile(r"^https://[A-Za-z0-9.-]+(?::[0-9]+)?(?:/[A-Za-z0-9._~/-]*)?$")
 def load_env(path: Path) -> dict[str, str]:
     values: dict[str, str] = {}
     if not path.exists():
-        raise SystemExit(f"Missing {path}. Copy config/customer.env.example first.")
+        raise SystemExit(f"No existe {path}. Copie primero config/customer.env.example.")
     for line_number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
         if "=" not in line:
-            raise SystemExit(f"Invalid env assignment at {path}:{line_number}")
+            raise SystemExit(f"Asignación inválida en {path}:{line_number}")
         key, value = line.split("=", 1)
         values[key.strip()] = value.strip().strip('"').strip("'")
     return values
@@ -41,7 +41,7 @@ def render_tree(source: Path, destination: Path, replacements: dict[str, str]) -
             text = text.replace("{{" + token + "}}", value)
         unresolved = sorted(set(re.findall(r"\{\{[A-Za-z0-9_]+\}\}", text)))
         if unresolved:
-            raise SystemExit(f"Unresolved tokens in {template}: {', '.join(unresolved)}")
+            raise SystemExit(f"Tokens sin resolver en {template}: {', '.join(unresolved)}")
         if output.suffix == ".json":
             json.loads(text)
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -60,9 +60,9 @@ def main() -> None:
     schema = values.get("BUNDLE_VAR_schema", "").strip()
     ontology_base_uri = values.get("BUNDLE_VAR_ontology_base_uri", "").strip().rstrip("/")
     if not IDENTIFIER.fullmatch(catalog) or not IDENTIFIER.fullmatch(schema):
-        raise SystemExit("BUNDLE_VAR_catalog and BUNDLE_VAR_schema must be valid identifiers")
+        raise SystemExit("BUNDLE_VAR_catalog y BUNDLE_VAR_schema deben ser identificadores válidos")
     if not URI.fullmatch(ontology_base_uri):
-        raise SystemExit("BUNDLE_VAR_ontology_base_uri must be a customer-owned HTTPS URI")
+        raise SystemExit("BUNDLE_VAR_ontology_base_uri debe ser una URI HTTPS administrada por su organización")
 
     replacements = {
         "catalog": catalog,
@@ -74,7 +74,7 @@ def main() -> None:
     total += render_tree(ROOT / "dashboards/templates", output_root / "dashboards", replacements)
     total += render_tree(ROOT / "genie_spaces/templates", output_root / "genie_spaces", replacements)
     total += render_tree(ROOT / "ontology/templates", output_root / "ontology", replacements)
-    print(f"Rendered {total} customer-specific assets in {output_root}")
+    print(f"Se generaron {total} artefactos configurados en {output_root}")
 
 
 if __name__ == "__main__":

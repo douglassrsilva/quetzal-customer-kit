@@ -4,5 +4,5 @@ resources:
       title: "[${bundle.target}] Quetzal | Operaciones de Red"
       warehouse_id: ${var.sql_warehouse_id}
       file_path: ../build/generated/genie_spaces/quetzal_genie_red.geniespace.json
-      description: Espacio de operaciones de red de Quetzal Telecom. Cubre anomalías detectadas por ML, salud de torres, métricas de suscriptores y tickets de 1,424 torres en 12 países.
+      description: Espacio de operaciones de red para analizar anomalías, salud de torres, capacidad, calidad de servicio y presión de tickets por mercado.
       parent_path: ${workspace.root_path}

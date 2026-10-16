@@ -8,11 +8,11 @@ command:
   - --port
   - "8000"
 
-# This file is only an example for local troubleshooting. DAB resources/app.yml
-# is the source of truth and injects real resource identifiers at deployment.
+# Este archivo se utiliza únicamente para diagnóstico local. resources/app.yml
+# es la fuente de configuración y agrega los identificadores durante el despliegue.
 env:
   - name: QUETZAL_CATALOG
-    value: "<customer_catalog>"
+    value: "<catalogo>"
   - name: QUETZAL_SCHEMA
     value: "quetzal"
   - name: DATABRICKS_WAREHOUSE_ID

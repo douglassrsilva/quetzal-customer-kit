@@ -1,5 +1,5 @@
 output "bundle_values" {
-  description = "Non-secret outputs to copy into config/customer.env."
+  description = "Valores no secretos para copiar en config/customer.env."
   value = {
     catalog             = module.foundation.catalog_name
     schema              = module.foundation.schema_name

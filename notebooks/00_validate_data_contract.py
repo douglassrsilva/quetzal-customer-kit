@@ -1,8 +1,8 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Quetzal · Canonical data contract validation
+# MAGIC # Quetzal · Validación del contrato canónico de datos
 # MAGIC
-# MAGIC Read-only validation of the customer adapter or synthetic source layer.
+# MAGIC Validación de solo lectura de los adaptadores del modo `customer` o de las fuentes sintéticas.
 
 # COMMAND ----------
 
@@ -16,7 +16,7 @@ catalog = dbutils.widgets.get("catalog").strip()
 schema = dbutils.widgets.get("schema").strip()
 identifier = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 if not identifier.fullmatch(catalog) or not identifier.fullmatch(schema):
-    raise ValueError("catalog and schema are required valid identifiers")
+    raise ValueError("catalog y schema son obligatorios y deben ser identificadores válidos")
 
 fq = f"`{catalog}`.`{schema}`"
 required = {
@@ -48,7 +48,7 @@ failures = []
 for table, columns in required.items():
     if table not in available:
         report.append({"table": table, "status": "MISSING_TABLE"})
-        failures.append(f"missing table {table}")
+        failures.append(f"falta la tabla {table}")
         continue
     actual = {
         row.col_name.lower()
@@ -60,9 +60,9 @@ for table, columns in required.items():
     status = "READY" if not missing and row_count > 0 else "INVALID"
     report.append({"table": table, "status": status, "row_count": row_count, "missing_columns": missing})
     if missing:
-        failures.append(f"{table}: missing {', '.join(missing)}")
+        failures.append(f"{table}: faltan {', '.join(missing)}")
     if row_count == 0:
-        failures.append(f"{table}: empty")
+        failures.append(f"{table}: está vacía")
 
 result = {
     "catalog": catalog,
@@ -73,4 +73,4 @@ result = {
 }
 print(json.dumps(result, ensure_ascii=False, indent=2))
 if failures:
-    raise RuntimeError("Canonical data contract failed: " + "; ".join(failures))
+    raise RuntimeError("La validación del contrato canónico falló: " + "; ".join(failures))

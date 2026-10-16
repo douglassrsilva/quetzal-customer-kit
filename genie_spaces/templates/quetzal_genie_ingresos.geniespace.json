@@ -65,7 +65,7 @@
     "text_instructions": [{
       "content": [
         "Responde en el idioma de la pregunta: español latinoamericano o portugués de Brasil.",
-        "Todos los datos son sintéticos y demostrativos. Informa siempre el período de la fuente consultada.",
+        "Todos los datos son sintéticos. Informa siempre el período de la fuente consultada.",
         "Para KPIs operativos mensuales usa el último mes cerrado y excluye el mes corriente y proyecciones futuras.",
         "Agrega valores monetarios entre países solamente en USD.",
         "No expongas PII ni identificadores completos de clientes; usa agregaciones por país, segmento y servicio.",

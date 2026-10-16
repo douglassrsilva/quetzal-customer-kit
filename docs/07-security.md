@@ -2,9 +2,9 @@
 
 ## Controles obligatorios
 
-- repositorio privado, protección de rama, revisión y CODEOWNERS del cliente;
+- protección de rama, revisión por pull request y responsables definidos en `CODEOWNERS`;
 - OIDC o workload identity para CI/CD;
-- Secret Scanning y Push Protection;
+- Secret Scanning y Push Protection cuando estén disponibles en el plan de GitHub;
 - state de Terraform remoto, cifrado y bloqueado;
 - grupos dedicados en lugar del grupo global `users`;
 - filtros de fila, máscaras de columnas y alcance territorial en Unity Catalog;
@@ -12,11 +12,11 @@
 - dependencias revisadas y SBOM por release;
 - logs sin tokens, credenciales ni contenido íntegro de clientes.
 
-> Nota: algunas protecciones de GitHub para repositorios privados requieren GitHub Pro o GitHub Advanced Security. Si el plan no las incluye, documente la excepción y aplique revisión obligatoria mediante el proceso de cambios del cliente.
+La disponibilidad de estas funciones depende del plan de GitHub y de la visibilidad del repositorio. Si una protección no está disponible, documente la excepción y aplique el control equivalente en su proceso de cambios.
 
-## Sanitización
+## Verificación del repositorio
 
-`make sanitize` bloquea hosts de workspace, correos no ficticios, IDs concretos, tokens, claves privadas y artefactos locales. Ejecútelo también sobre todo el historial antes de transferir el repositorio.
+`make sanitize` bloquea hosts de workspace no permitidos, correos no ficticios, IDs concretos, tokens, claves privadas y artefactos locales. Ejecútelo antes de cada commit y en el pipeline de CI.
 
 ## PII
 
@@ -24,4 +24,4 @@ El modo sintético utiliza identidades ficticias. En el modo `customer`, la PII 
 
 ## Divulgación
 
-Reporte las vulnerabilidades mediante el canal privado aprobado por el cliente. No abra una issue pública ni adjunte state, `.env`, HAR, cookies o capturas sin sanitizar.
+Utilice **Private vulnerability reporting** de GitHub, si está habilitado, o contacte al mantenedor por un canal privado. No publique state, `.env`, HAR, cookies, credenciales ni capturas con información sensible.

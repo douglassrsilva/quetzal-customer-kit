@@ -4,12 +4,12 @@ dbutils.widgets.text("schema", "")
 
 catalog = dbutils.widgets.get("catalog").strip()
 schema = dbutils.widgets.get("schema").strip()
-assert catalog and schema, "catalog and schema are required"
-assert catalog.replace("_", "").isalnum(), "invalid catalog"
-assert schema.replace("_", "").isalnum(), "invalid schema"
+assert catalog and schema, "catalog y schema son obligatorios"
+assert catalog.replace("_", "").isalnum(), "catalog inválido"
+assert schema.replace("_", "").isalnum(), "schema inválido"
 fq = f"`{catalog}`.`{schema}`"
 
-# One deterministic fingerprint per rule, market, metric and hour prevents alert storms.
+# Un fingerprint determinista por regla, mercado, métrica y hora evita tormentas de alertas.
 spark.sql(f"""
 MERGE INTO {fq}.ops_alert_events AS target
 USING (
@@ -47,9 +47,9 @@ VALUES (source.event_id, source.subscription_id, source.fingerprint, source.coun
 
 spark.sql(f"""
 INSERT INTO {fq}.ops_audit_log
-SELECT uuid(), 'ALERT_EVALUATION', 'alert_engine', 'scheduled', current_user(), current_timestamp(),
+SELECT uuid(), 'ALERT_EVALUATION', 'alert_engine', 'manual', current_user(), current_timestamp(),
        to_json(named_struct('open_events', COUNT(*)))
 FROM {fq}.ops_alert_events WHERE status = 'OPEN'
 """)
 
-print("Quetzal alert evaluation completed")
+print("Evaluación de alertas de Quetzal finalizada")

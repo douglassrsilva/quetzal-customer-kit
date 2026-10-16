@@ -1,6 +1,6 @@
 # Bootstrap operativo
 
-En el modo de demostración, genere y certifique las fuentes antes de validar el contrato y ejecutar el bootstrap:
+En el modo `synthetic`, genere y certifique las fuentes antes de validar el contrato y ejecutar el bootstrap:
 
 ```bash
 make synthetic-data TARGET=dev
@@ -10,7 +10,7 @@ make memory TARGET=dev
 make alerts TARGET=dev
 ```
 
-`synthetic-data` no tiene programación. Su segunda tarea certifica volúmenes, esquemas, claves, reglas de negocio y cobertura de los recorridos de la demo. En el modo `customer`, no ejecute este job: publique los adaptadores gobernados y comience con `make data-contract`.
+`synthetic-data` no tiene programación. Su segunda tarea certifica volúmenes, esquemas, claves, reglas de negocio y cobertura de los flujos funcionales. En el modo `customer`, no ejecute este job: publique los adaptadores gobernados y comience con `make data-contract`.
 
 El bootstrap crea tablas y vistas operativas, aplica permisos al service principal de la aplicación y puede repetirse de forma segura. Managed Memory y las alertas no tienen programación.
 

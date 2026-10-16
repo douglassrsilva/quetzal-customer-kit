@@ -22,7 +22,7 @@ Los IDs de la aplicación, el dashboard, los espacios Genie y los jobs se resuel
 
 ## Comprobar Unity AI Gateway
 
-Después del despliegue, abra el endpoint de modelo que utiliza Quetzal IQ y entre en **AI Gateway**. Confirme que el gateway está habilitado para el endpoint correcto y que las funciones de seguimiento y gobernanza previstas por el cliente aparecen activas. No copie el endpoint ni sus identificadores desde el entorno de origen: deben resolverse mediante la configuración del workspace de destino.
+Después del despliegue, abra el endpoint de modelo que utiliza Quetzal IQ y entre en **AI Gateway**. Confirme que el gateway está habilitado para el endpoint configurado y que las funciones de seguimiento y gobernanza requeridas por su organización aparecen activas. Defina el endpoint y sus identificadores mediante la configuración del workspace.
 
 ![Unity AI Gateway configurado para Quetzal IQ](screenshots/assets/08-unity-ai-gateway.png)
 

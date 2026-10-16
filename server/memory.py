@@ -1,7 +1,7 @@
-"""Conversation ledger for Quetzal IQ backed by Lakebase Autoscaling.
+"""Registro de conversaciones de Quetzal IQ respaldado por Lakebase Autoscaling.
 
-Managed Agent Memory is intentionally used for durable semantic memories. This
-store keeps the recoverable short-term transcript, sources and tool trace.
+Managed Agent Memory conserva recuerdos semánticos durables. Este store guarda la
+transcripción reciente recuperable, sus fuentes y el rastreo de herramientas.
 """
 
 from __future__ import annotations
@@ -98,7 +98,7 @@ class LakebaseConversationStore:
     @contextmanager
     def _connection(self) -> Iterator[Any]:
         if not self.enabled:
-            raise RuntimeError("Lakebase is not configured")
+            raise RuntimeError("Lakebase no está configurado")
         import psycopg
         from databricks.sdk import WorkspaceClient
 
@@ -106,14 +106,13 @@ class LakebaseConversationStore:
         endpoint_name = (
             f"projects/{self.project}/branches/{self.branch}/endpoints/{self.endpoint}"
         )
-        # Lakebase Autoscaling requires a database credential minted for the
-        # endpoint; the generic workspace bearer token fails SASL.
+        # Lakebase Autoscaling requiere una credencial emitida para el endpoint;
+        # el bearer token genérico del workspace falla en SASL.
         credential = client.postgres.generate_database_credential(endpoint_name)
         token = credential.token or ""
         principal = client.current_user.me()
-        # Lakebase creates an OAuth role named after the Databricks App service
-        # principal client ID. current_user.user_name is a display name for a
-        # service principal and is not a valid PostgreSQL OAuth role.
+        # Lakebase crea un rol OAuth con el client ID del service principal de la App.
+        # current_user.user_name es un nombre visible y no un rol OAuth válido de PostgreSQL.
         user = (
             os.getenv("QUETZAL_LAKEBASE_USER", "").strip()
             or os.getenv("DATABRICKS_CLIENT_ID", "").strip()
@@ -121,7 +120,7 @@ class LakebaseConversationStore:
             or getattr(principal, "user_name", None)
         )
         if not token or not user:
-            raise RuntimeError("Lakebase OAuth identity is incomplete")
+            raise RuntimeError("La identidad OAuth de Lakebase está incompleta")
         connection = psycopg.connect(
             host=self.host,
             port=5432,

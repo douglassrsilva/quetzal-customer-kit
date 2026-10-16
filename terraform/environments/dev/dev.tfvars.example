@@ -15,5 +15,5 @@ existing_warehouse_id = null
 tags = {
   environment = "dev"
   owner       = "customer-platform-team"
-  cost_center = "demo"
+  cost_center = "quetzal"
 }

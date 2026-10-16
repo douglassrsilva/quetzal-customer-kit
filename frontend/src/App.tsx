@@ -41,7 +41,7 @@ const NAV: {id: Page; label: string; icon: typeof Command; group: string}[] = [
 
 const PAGE_META: Record<Page, {eyebrow:string; title:string; subtitle:string}> = {
   command: { eyebrow:'OPERACIÓN LATAM', title:'Decidir antes de que la señal se pierda.', subtitle:'Una vista priorizada de red, clientes, riesgo y acciones en los 12 mercados.' },
-  journey: { eyebrow:'DEMO GUIADA', title:'De la señal al valor.', subtitle:'Recorre una decisión completa con evidencia, contexto y premisas financieras visibles.' },
+  journey: { eyebrow:'FLUJO OPERATIVO', title:'De la señal al valor.', subtitle:'Revisa una decisión completa con contexto, evidencia y premisas financieras visibles.' },
   analytics: { eyebrow:'AI/BI GOBERNADO', title:'Analítica que conecta cada mercado.', subtitle:'Explora el desempeño comercial y operativo en el dashboard interactivo de Databricks.' },
   incidents: { eyebrow:'CONTROL OPERATIVO', title:'Incidentes que importan.', subtitle:'Priorizados por severidad técnica, clientes afectados, churn y valor en riesgo.' },
   network: { eyebrow:'ALCANCE SIN FRONTERAS', title:'La red, de continente a torre.', subtitle:'Navega por país y ciudad con una semántica clara de salud, capacidad y calidad.' },

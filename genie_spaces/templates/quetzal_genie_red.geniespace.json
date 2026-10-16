@@ -376,7 +376,7 @@
     "text_instructions": [{
       "content": [
         "Responde en el idioma de la pregunta: español latinoamericano o portugués de Brasil.",
-        "Todos los datos son sintéticos y demostrativos. Indica siempre la fecha máxima de las fuentes utilizadas.",
+        "Todos los datos son sintéticos. Indica siempre la fecha máxima de las fuentes utilizadas.",
         "La columna gold_network_health.uptime_pct NO es disponibilidad contractual ni uptime de SLA: representa el porcentaje de mediciones sin alerta. Llámala salud de mediciones o network health score.",
         "Nunca uses las palabras disponibilidad o uptime contractual para describir uptime_pct.",
         "Para el estado actual usa el timestamp máximo disponible; no mezcles snapshots diferentes sin explicarlo.",

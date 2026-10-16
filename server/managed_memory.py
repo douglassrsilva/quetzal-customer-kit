@@ -1,7 +1,7 @@
-"""Thin REST adapter for Databricks Managed Agent Memory (Beta).
+"""Adaptador REST para Databricks Managed Agent Memory (Beta).
 
-The scope is always derived from the authenticated Databricks Apps proxy
-identity. Request bodies and the model can never select another user's scope.
+El alcance se deriva de la identidad autenticada por el proxy de Databricks Apps.
+El body de una solicitud y el modelo no pueden seleccionar el alcance de otro usuario.
 """
 
 from __future__ import annotations
@@ -27,7 +27,7 @@ class ManagedAgentMemory:
     @staticmethod
     def _scope(actor: str) -> str:
         if not actor or actor == "quetzal-operator":
-            raise RuntimeError("Verified end-user identity is required for managed memory")
+            raise RuntimeError("Managed Memory requiere la identidad verificada del usuario final")
         return f"user:{actor.casefold()}"
 
     @staticmethod

@@ -16,7 +16,7 @@ locals {
 resource "databricks_catalog" "quetzal" {
   count          = var.create_catalog ? 1 : 0
   name           = var.catalog_name
-  comment        = "Customer-owned catalog for Quetzal telecom intelligence"
+  comment        = "Catálogo para la inteligencia de telecomunicaciones de Quetzal"
   isolation_mode = "ISOLATED"
   owner          = local.admin_group
   properties = merge(var.tags, {
@@ -32,7 +32,7 @@ resource "databricks_catalog" "quetzal" {
 resource "databricks_schema" "quetzal" {
   catalog_name = var.create_catalog ? databricks_catalog.quetzal[0].name : var.catalog_name
   name         = var.schema_name
-  comment      = "Canonical and operational data model for Quetzal"
+  comment      = "Modelo de datos canónico y operativo de Quetzal"
   owner        = local.admin_group
   properties = merge(var.tags, {
     managed_by = "terraform"

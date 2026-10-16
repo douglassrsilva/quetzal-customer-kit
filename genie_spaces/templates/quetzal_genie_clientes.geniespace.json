@@ -564,7 +564,7 @@
     "text_instructions": [{
       "content": [
         "Responde en el idioma de la pregunta: español latinoamericano o portugués de Brasil.",
-        "Todos los datos son sintéticos y demostrativos. Informa siempre la fecha máxima del scoring o período consultado.",
+        "Todos los datos son sintéticos. Informa siempre la fecha máxima del scoring o período consultado.",
         "No expongas nombre, email, teléfono ni identificadores completos. Usa únicamente agregaciones o referencias de cliente enmascaradas.",
         "Distingue probabilidad de churn, churn observado e inferencia; no los presentes como equivalentes.",
         "Prioriza intervenciones por probabilidad, valor mensual, tickets, morosidad y NPS, explicando la evidencia.",

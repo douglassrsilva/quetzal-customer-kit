@@ -1,4 +1,4 @@
-"""Databricks authentication and SQL execution primitives."""
+"""Funciones base de autenticación y ejecución SQL en Databricks."""
 
 from __future__ import annotations
 
@@ -20,11 +20,11 @@ log = logging.getLogger("quetzal.platform")
 
 
 class SqlExecutionError(RuntimeError):
-    """A Databricks SQL statement failed."""
+    """Error al ejecutar una sentencia de Databricks SQL."""
 
 
 class SqlExecutionTimeout(SqlExecutionError):
-    """A Databricks SQL statement exceeded the configured deadline."""
+    """Una sentencia de Databricks SQL superó el tiempo límite configurado."""
 
 
 @lru_cache(maxsize=1)
@@ -33,8 +33,8 @@ def workspace_client() -> WorkspaceClient:
 
 
 def auth_headers() -> dict[str, str]:
-    # OAuth credentials are short-lived; authenticate on every upstream call
-    # so the SDK can refresh them instead of caching an expired bearer token.
+    # Las credenciales OAuth son temporales. Autenticar cada llamada permite que el SDK
+    # las renueve en lugar de reutilizar un bearer token vencido.
     headers = dict(workspace_client().config.authenticate() or {})
     headers["Content-Type"] = "application/json"
     headers["User-Agent"] = "Quetzal-Command-Center/2.0"
@@ -110,7 +110,7 @@ def run_sql(
     parameters: dict[str, Any] | None = None,
     cache_ttl: int | None = None,
 ) -> list[dict[str, Any]]:
-    """Execute a statement with named parameters, bounded polling and optional cache."""
+    """Ejecuta una sentencia con parámetros nombrados, polling acotado y caché opcional."""
     ttl = settings.sql_cache_ttl_seconds if cache_ttl is None else cache_ttl
     key = _cache_key(query, parameters)
     if ttl > 0:
@@ -154,7 +154,7 @@ def run_sql(
 
 
 def execute_sql(query: str, *, parameters: dict[str, Any] | None = None) -> list[dict[str, Any]]:
-    """Execute a mutating statement and invalidate all cached analytical reads."""
+    """Ejecuta una sentencia de escritura e invalida las lecturas analíticas en caché."""
     rows = run_sql(query, parameters=parameters, cache_ttl=0)
     _cache.clear()
     return rows

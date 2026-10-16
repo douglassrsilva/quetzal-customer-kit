@@ -1,5 +1,5 @@
-# Rename to backend.tf and configure exactly one customer-owned encrypted backend.
-# Never commit access keys. Example for S3:
+# Renombre como backend.tf y configure un único backend cifrado administrado por su organización.
+# Nunca guarde claves de acceso en Git. Ejemplo para S3:
 #
 # terraform {
 #   backend "s3" {

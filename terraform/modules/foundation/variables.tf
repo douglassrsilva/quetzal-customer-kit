@@ -1,22 +1,22 @@
 variable "catalog_name" {
-  description = "Unity Catalog catalog dedicated to or approved for Quetzal."
+  description = "Catálogo de Unity Catalog dedicado a Quetzal o autorizado para su uso."
   type        = string
 }
 
 variable "schema_name" {
-  description = "Unity Catalog schema dedicated to Quetzal."
+  description = "Esquema de Unity Catalog dedicado a Quetzal."
   type        = string
   default     = "quetzal"
 }
 
 variable "create_catalog" {
-  description = "Create a dedicated catalog. Set false to use a customer-managed catalog."
+  description = "Crea un catálogo dedicado. Use false para reutilizar un catálogo administrado por su organización."
   type        = bool
   default     = false
 }
 
 variable "create_groups" {
-  description = "Create workspace-local Quetzal user and admin groups."
+  description = "Crea grupos locales del workspace para usuarios y administradores de Quetzal."
   type        = bool
   default     = true
 }
@@ -32,13 +32,13 @@ variable "admin_group_name" {
 }
 
 variable "create_warehouse" {
-  description = "Create a dedicated serverless SQL warehouse."
+  description = "Crea un SQL Warehouse serverless dedicado."
   type        = bool
   default     = true
 }
 
 variable "existing_warehouse_id" {
-  description = "Existing warehouse ID when create_warehouse is false."
+  description = "ID de un Warehouse existente cuando create_warehouse es false."
   type        = string
   default     = null
   nullable    = true

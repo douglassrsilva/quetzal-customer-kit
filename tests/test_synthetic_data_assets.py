@@ -58,7 +58,7 @@ def test_generator_contains_all_approved_canonical_tables_and_safety_gates():
     assert "SYNTHETIC_DEMO_ONLY" in source
     assert "data_classification' = 'synthetic" in source
     assert "generated_by' = 'quetzal-customer-kit" in source
-    assert "Refusing to replace" in source
+    assert "No se reemplazará" in source
     assert "@example.com" in source
     assert "+000" in source
     assert "h1 + h2" not in source

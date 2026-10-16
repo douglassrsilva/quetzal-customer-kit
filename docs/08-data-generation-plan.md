@@ -201,5 +201,5 @@ El mismo job deriva, sin aleatoriedad adicional:
 - validación de identificadores y volúmenes antes de cualquier escritura;
 - `data_classification=synthetic` en todas las tablas;
 - job sin programación, con `max_concurrent_runs=1`;
-- certificación bloqueante con fingerprint determinista, integridad referencial y cobertura de los recorridos de la demo;
+- certificación bloqueante con fingerprint determinista, integridad referencial y cobertura de los flujos funcionales;
 - resumen final con volúmenes, seed y timestamps.

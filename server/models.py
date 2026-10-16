@@ -1,4 +1,4 @@
-"""Validated API contracts used by the Quetzal frontend."""
+"""Contratos validados de la API utilizada por el frontend de Quetzal."""
 
 from typing import Literal
 
@@ -36,7 +36,7 @@ class GenieQueryRequest(StrictRequest):
     def clean_question(cls, value: str) -> str:
         value = value.strip()
         if len(value) < 2:
-            raise ValueError("question must contain at least two non-space characters")
+            raise ValueError("question debe contener al menos 2 caracteres distintos de espacio")
         return value
 
 
@@ -63,7 +63,7 @@ class ChatRequest(StrictRequest):
     def clean_message(cls, value: str) -> str:
         value = value.strip()
         if len(value) < 2:
-            raise ValueError("message must contain at least two non-space characters")
+            raise ValueError("message debe contener al menos 2 caracteres distintos de espacio")
         return value
 
 
@@ -121,7 +121,7 @@ class ScenarioRequest(StrictRequest):
 
 
 class FinancialImpactRequest(StrictRequest):
-    """Governed assumptions for a counterfactual retention estimate."""
+    """Supuestos gobernados para una estimación contrafactual de retención."""
 
     country: CountryFilter = "ALL"
     treated_customers: int = Field(default=1000, ge=1, le=1_000_000)
@@ -131,7 +131,7 @@ class FinancialImpactRequest(StrictRequest):
 
 
 class CampaignOptimizeRequest(StrictRequest):
-    """Bounded assumptions for a deterministic, non-executing campaign draft."""
+    """Supuestos acotados para un borrador determinista de campaña que no ejecuta acciones."""
 
     country: CountryFilter = "ALL"
     objective: CampaignObjective = "RETENTION"

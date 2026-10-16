@@ -21,7 +21,7 @@ schema = dbutils.widgets.get("schema").strip()
 store = dbutils.widgets.get("memory_store").strip()
 app_name = dbutils.widgets.get("app_name").strip()
 if not all((catalog, schema, store, app_name)):
-    raise ValueError("catalog, schema, memory_store and app_name are required")
+    raise ValueError("catalog, schema, memory_store y app_name son obligatorios")
 full_name = f"{catalog}.{schema}.{store}"
 client = WorkspaceClient()
 base_path = "/api/2.1/unity-catalog/memory-stores"
@@ -48,8 +48,8 @@ else:
             "catalog_name": catalog,
             "schema_name": schema,
             "description": (
-                "Quetzal IQ managed long-term memory. Per-user trusted scope; "
-                "external research preferences and context; no secrets."
+                "Memoria administrada de Quetzal IQ con alcance aislado por usuario. "
+                "Guarda contexto de investigación externa y nunca almacena secretos."
             ),
         },
     )
@@ -58,11 +58,11 @@ else:
 verified = client.api_client.do("GET", f"{base_path}/{full_name}")
 assert isinstance(verified, dict), verified
 
-# The Apps control plane is the trusted source of the service principal ID.
+# El plano de control de Apps es la fuente confiable del ID del service principal.
 app = client.api_client.do("GET", f"/api/2.0/apps/{app_name}")
 principal = app.get("service_principal_client_id") or app.get("service_principal_name")
 if not principal:
-    raise AssertionError(f"App service principal unavailable for {app_name}")
+    raise AssertionError(f"No se encontró el service principal de la aplicación {app_name}")
 
 permission_path = f"/api/2.1/unity-catalog/permissions/memory_store/{full_name}"
 client.api_client.do(

@@ -4,7 +4,7 @@
 
 | Job | Frecuencia | Costo esperado |
 |---|---|---|
-| Generación y certificación sintética | manual, preparación o reinicio de la demo | bajo a moderado |
+| Generación y certificación sintética | manual, preparación o reinicio del entorno | bajo a moderado |
 | Bootstrap operativo | manual, instalación o cambio de esquema | bajo |
 | Managed Memory Foundation | manual | bajo |
 | Motor de alertas | manual desde la aplicación | bajo |

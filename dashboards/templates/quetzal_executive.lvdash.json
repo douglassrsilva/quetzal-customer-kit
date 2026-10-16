@@ -716,7 +716,7 @@
             "spec": {
               "frame": {
                 "showTitle": true,
-                "title": "Revenue vs NPS por País"
+                "title": "Ingresos vs NPS por País"
               },
               "version": 3,
               "mark": {
@@ -1366,7 +1366,7 @@
             "spec": {
               "frame": {
                 "showTitle": true,
-                "title": "Revenue vs Tasa de Cobro"
+                "title": "Ingresos vs Tasa de Cobro"
               },
               "version": 1,
               "widgetType": "combo",
@@ -1985,7 +1985,7 @@
             "multilineTextboxSpec": {
               "lines": [
                 "## 📡 Operaciones de Red\n",
-                "Salud de infraestructura, latencia, throughput y alertas de 1,424 torres"
+                "Salud de infraestructura, latencia, throughput y alertas de la red"
               ]
             }
           },

@@ -1,8 +1,8 @@
 resources:
   jobs:
     quetzal_generate_synthetic_sources:
-      name: "[${bundle.target}] Quetzal | Generate and certify synthetic demo data"
-      description: Generates deterministic telecom demo sources and certifies the canonical contract. Manual only; never scheduled.
+      name: "[${bundle.target}] Quetzal | Generar y certificar datos sintéticos"
+      description: Genera fuentes deterministas de telecomunicaciones y certifica el contrato canónico. Ejecución manual, sin programación.
       max_concurrent_runs: 1
       timeout_seconds: 3600
       tags:

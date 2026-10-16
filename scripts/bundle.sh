@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${QUETZAL_ENV_FILE:-${ROOT}/config/customer.env}"
 
 if [[ ! -f "${ENV_FILE}" ]]; then
-  echo "Missing ${ENV_FILE}. Copy config/customer.env.example and replace example values." >&2
+  echo "No existe ${ENV_FILE}. Copie config/customer.env.example y reemplace los valores de ejemplo." >&2
   exit 2
 fi
 

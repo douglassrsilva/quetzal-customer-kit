@@ -2,9 +2,10 @@
 # MAGIC %md
 # MAGIC # Quetzal Graph Intelligence
 # MAGIC
-# MAGIC Deterministic, manually executed telecom relationship graph. The job keeps
-# MAGIC only the latest qualified relationships/features/prediction snapshot and a compact run log.
-# MAGIC Source plan: 300,000 synthetic calls across 60,000 existing customers, seed 42.
+# MAGIC Grafo determinista de relaciones de telecomunicaciones con ejecución manual.
+# MAGIC El job conserva el último snapshot de relaciones, features y predicciones, además
+# MAGIC de un registro compacto. Plan de datos: 300.000 llamadas sintéticas entre 60.000
+# MAGIC clientes existentes, con semilla 42.
 
 # COMMAND ----------
 
@@ -39,25 +40,25 @@ ontology_base_uri = dbutils.widgets.get("ontology_base_uri").strip().rstrip("/")
 
 identifier = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 if not identifier.fullmatch(catalog) or not identifier.fullmatch(schema):
-    raise ValueError("Invalid catalog or schema identifier")
+    raise ValueError("Identificador de catalog o schema inválido")
 if not app_name:
-    raise ValueError("app_name is required")
+    raise ValueError("app_name es obligatorio")
 if not re.fullmatch(r"https://[A-Za-z0-9.-]+(?::[0-9]+)?(?:/[A-Za-z0-9._~/-]*)?", ontology_base_uri):
-    raise ValueError("ontology_base_uri must be a valid customer-owned HTTPS URI")
+    raise ValueError("ontology_base_uri debe ser una URI HTTPS válida administrada por su organización")
 if not 1_000 <= node_limit <= 100_000:
-    raise ValueError("node_limit must be between 1,000 and 100,000")
+    raise ValueError("node_limit debe estar entre 1.000 y 100.000")
 if not 10_000 <= edge_count <= 500_000:
-    raise ValueError("edge_count must be between 10,000 and 500,000")
+    raise ValueError("edge_count debe estar entre 10.000 y 500.000")
 if not 30 <= window_days <= 365:
-    raise ValueError("window_days must be between 30 and 365")
+    raise ValueError("window_days debe estar entre 30 y 365")
 if not 1 <= relationship_slots <= 10:
-    raise ValueError("relationship_slots must be between 1 and 10")
+    raise ValueError("relationship_slots debe estar entre 1 y 10")
 if not 2 <= min_contact_calls <= 20:
-    raise ValueError("min_contact_calls must be between 2 and 20")
+    raise ValueError("min_contact_calls debe estar entre 2 y 20")
 if not 1 <= min_contact_minutes <= 120:
-    raise ValueError("min_contact_minutes must be between 1 and 120")
+    raise ValueError("min_contact_minutes debe estar entre 1 y 120")
 if not 7 <= max_contact_recency_days <= window_days:
-    raise ValueError("max_contact_recency_days must be between 7 and window_days")
+    raise ValueError("max_contact_recency_days debe estar entre 7 y window_days")
 
 fq = f"`{catalog}`.`{schema}`"
 run_id = uuid4().hex
@@ -119,9 +120,8 @@ VALUES ('{run_id}', 'RUNNING', current_timestamp(), NULL, {window_days}, {node_l
 # COMMAND ----------
 
 try:
-    # Stable sample of active customers. Country and segment affinity make the
-    # generated graph useful for community detection while retaining 8% of
-    # cross-border calls.
+    # Muestra estable de clientes activos. La afinidad por país y segmento permite
+    # detectar grupos de relaciones y conserva un 8 % de llamadas transfronterizas.
     sql(f"""
     CREATE OR REPLACE TEMP VIEW graph_nodes_base AS
     WITH selected AS (
@@ -162,12 +162,12 @@ try:
 
     node_count = sql("SELECT count(*) AS n FROM graph_nodes").first()["n"]
     if node_count < 1_000:
-        raise RuntimeError(f"Insufficient eligible customers: {node_count}")
+        raise RuntimeError(f"No hay suficientes clientes elegibles: {node_count}")
 
-    # Each range row is one synthetic call. Calls are distributed over a small,
-    # stable set of relationship slots per subscriber so repeated interactions
-    # can qualify a relationship. Routes are deterministic: 65% within
-    # country+segment, 27% elsewhere in-country and 8% cross-border.
+    # Cada fila representa una llamada sintética. Las llamadas se distribuyen en un
+    # conjunto pequeño y estable de relaciones por suscriptor para que la recurrencia
+    # permita calificarlas. Las rutas son deterministas: 65 % dentro del mismo país y
+    # segmento, 27 % dentro del país y 8 % transfronterizas.
     sql(f"""
     CREATE OR REPLACE TABLE {fq}.`{tmp_edges}`
     USING DELTA
@@ -270,11 +270,11 @@ try:
 
     generated_call_count = sql(f"SELECT count(*) AS n FROM {fq}.`{tmp_edges}`").first()["n"]
     if generated_call_count != edge_count:
-        raise RuntimeError(f"Expected {edge_count} calls, generated {generated_call_count}")
+        raise RuntimeError(f"Se esperaban {edge_count} llamadas y se generaron {generated_call_count}")
 
-    # Aggregate all interactions first, then retain only meaningful and recent
-    # relationships. Recurrence, accumulated duration or reciprocity can each
-    # establish a relationship; isolated one-off calls no longer create edges.
+    # Primero agrega todas las interacciones y luego conserva las relaciones recientes
+    # y relevantes. La recurrencia, la duración acumulada o la reciprocidad pueden
+    # establecer una relación; una llamada aislada no crea una arista.
     sql(f"""
     CREATE OR REPLACE TEMP VIEW graph_directed_all AS
     SELECT source_customer_id, destination_customer_id,
@@ -350,10 +350,10 @@ try:
     QUALIFY row_number() OVER (PARTITION BY cliente_id ORDER BY scored_at DESC) = 1
     """)
 
-    # Serverless Spark Connect intentionally does not support DataFrame.cache().
-    # Materializing bounded intermediate Delta tables keeps each iteration's
-    # logical plan small and is cleaned up before the run completes. PageRank
-    # measures weighted reach; it is never interpreted as churn probability.
+    # Spark Connect serverless no admite DataFrame.cache(). Las tablas Delta
+    # intermedias acotadas mantienen pequeño el plan lógico de cada iteración y se
+    # eliminan antes de finalizar. PageRank mide alcance ponderado; no se interpreta
+    # como probabilidad de churn.
     sql(f"""
     CREATE OR REPLACE TABLE {fq}.`{tmp_rank_a}` USING DELTA AS
     SELECT cliente_id AS customer_id, 1D / {node_count} AS weighted_pagerank FROM graph_nodes
@@ -375,9 +375,9 @@ try:
         current_rank, next_rank = next_rank, current_rank
     sql(f"CREATE OR REPLACE TEMP VIEW graph_pagerank AS SELECT * FROM {fq}.`{current_rank}`")
 
-    # Personalized PageRank diffuses *where* governed high-risk seeds sit in
-    # the relationship graph. It is an exposure signal, not a second churn
-    # model and not evidence that churn is socially contagious.
+    # Personalized PageRank propaga la posición de las semillas gobernadas de alto
+    # riesgo dentro del grafo. Es una señal de exposición, no otro modelo de churn ni
+    # evidencia de contagio social.
     sql(f"""
     CREATE OR REPLACE TEMP VIEW graph_risk_seeds AS
     WITH raw AS (
@@ -441,8 +441,8 @@ try:
     FROM {fq}.`{current_label}`
     """)
 
-    # Exact local triangles; the approved graph has a bounded average degree,
-    # keeping this self-join predictable on manual serverless compute.
+    # Triángulos locales exactos. El grado promedio acotado mantiene predecible este
+    # self-join en cómputo serverless manual.
     sql("""
     CREATE OR REPLACE TEMP VIEW graph_triangles AS
     SELECT l.node, count(*) AS triangle_count
@@ -454,8 +454,8 @@ try:
     GROUP BY l.node
     """)
 
-    # Feature snapshot. All scores retain their underlying components so the
-    # application and Quetzal IQ can explain why a customer was prioritized.
+    # Snapshot de features. Cada score conserva sus componentes para que la aplicación
+    # y Quetzal IQ expliquen por qué se priorizó a un cliente.
     sql(f"""
     CREATE OR REPLACE TABLE {fq}.`{tmp_features}`
     USING DELTA
@@ -655,10 +655,9 @@ try:
     GROUP BY f.community_id
     """)
 
-    # OntoBricks-compatible semantic projection. Raw CDR events remain in
-    # Delta; the knowledge graph receives qualified relationships and business
-    # entities only. Relationship reification preserves the attributes that a
-    # plain (subject, predicate, object) edge would otherwise discard.
+    # Proyección semántica compatible con OntoBricks. Los CDR sin procesar permanecen
+    # en Delta; el grafo recibe solo relaciones calificadas y entidades de negocio.
+    # La reificación conserva los atributos que una arista simple descartaría.
     sql(f"""
     CREATE OR REPLACE TABLE {fq}.`{tmp_triples}`
     USING DELTA
@@ -875,10 +874,10 @@ try:
             f"qualified_calls={qualified_event_count}, triples={triple_count}"
         )
 
-    # Publish only after the complete snapshot passed validation. Expensive work
-    # never replaces the last known-good tables while it is still running.
+    # Publica solo después de validar el snapshot completo. El proceso no reemplaza
+    # las últimas tablas válidas mientras sigue en ejecución.
     sql(f"CREATE OR REPLACE TABLE {fq}.gold_customer_graph_features USING DELTA "
-        f"TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true', 'comment' = 'Governed relationship features for Quetzal customer intelligence') "
+        f"TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true', 'comment' = 'Features relacionales gobernadas para inteligencia de clientes') "
         f"AS SELECT * FROM {fq}.`{tmp_features}`")
     sql(f"CREATE OR REPLACE TABLE {fq}.gold_churn_graph_predictions USING DELTA "
         f"TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true', 'comment' = 'Retention priority signals; graph_churn_probability is a compatibility alias of the unchanged baseline') "
@@ -998,6 +997,6 @@ except Exception as exc:
     drop_intermediate_tables()
     raise
 
-# dbutils.notebook.exit raises an internal exception; keeping it outside the
-# guarded build prevents a successful publication from being marked FAILED.
+# dbutils.notebook.exit genera una excepción interna. Mantenerlo fuera del bloque
+# protegido evita que una publicación correcta quede marcada como FAILED.
 dbutils.notebook.exit(str(result))

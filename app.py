@@ -1,7 +1,7 @@
-"""Quetzal Command Center — FastAPI Backend.
+"""Backend FastAPI de Quetzal Command Center.
 
-Enterprise telco dashboard with Genie Spaces, AI Gateway, Dashboard embedding,
-and hyper-personalised reports via Databricks SQL.
+Integra espacios Genie, AI Gateway, dashboards embebidos y análisis personalizados
+mediante Databricks SQL.
 """
 
 import json as _json
@@ -41,7 +41,7 @@ try:
     _HAS_DDGS = True
 except ImportError:
     try:
-        # Compatibility with installations created before the package rename.
+        # Compatibilidad con instalaciones creadas antes del cambio de nombre del paquete.
         from duckduckgo_search import DDGS
         _HAS_DDGS = True
     except ImportError:
@@ -93,9 +93,9 @@ _CHAT_TOOLS = (
 
 
 def _execute_search(query: str) -> str:
-    """Execute web search via DDGS, fallback to DDG API. Returns JSON string."""
+    """Consulta la web mediante DDGS y utiliza la API de DDG como alternativa."""
     if not _EXTERNAL_RESEARCH_ENABLED:
-        log.warning("External research is disabled by customer policy")
+        log.warning("La política del entorno deshabilita la investigación externa")
         return '[]'
     if _HAS_DDGS:
         for backend in ("auto", "lite", "html"):
@@ -131,7 +131,7 @@ def _execute_search(query: str) -> str:
 
 
 def _execute_telecom_snapshot(scope: str) -> str:
-    """Return allowlisted internal data; the model never receives arbitrary SQL access."""
+    """Devuelve datos internos permitidos; el modelo no recibe acceso libre a SQL."""
     if scope == "revenue":
         payload = {
             "scope": scope,
@@ -193,7 +193,7 @@ def _execute_telecom_snapshot(scope: str) -> str:
                 "top_communities": top_communities,
                 "methodology": (
                     "v3 target: weighted PageRank for reach, weighted Personalized PageRank for risk diffusion, "
-                    "weighted neighbour exposure and weighted Label Propagation; OntoBricks supplies governed semantics"
+                    "exposición ponderada de vecinos y Label Propagation ponderado; OntoBricks aporta la semántica gobernada"
                 ),
                 "important_semantics": (
                     "The individual churn probability is never replaced by graph analytics. Reach, exposure, diffusion "
@@ -201,7 +201,7 @@ def _execute_telecom_snapshot(scope: str) -> str:
                 ),
             }
         except SqlExecutionError:
-            payload = {"scope": scope, "available": False, "reason": "Graph Intelligence has not completed its first manual run."}
+            payload = {"scope": scope, "available": False, "reason": "Graph Intelligence todavía no completó su primera ejecución manual."}
     else:
         payload = {
             "scope": "executive",
@@ -214,7 +214,7 @@ def _execute_telecom_snapshot(scope: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Environment-backed product resources
+# Recursos del producto configurados mediante variables de entorno
 # ---------------------------------------------------------------------------
 HOST = settings.host
 AI_MODEL = settings.ai_model
@@ -245,13 +245,13 @@ def _validate_resource_id(value: str, label: str) -> str:
     return value
 
 # ---------------------------------------------------------------------------
-# FastAPI
+# Aplicación FastAPI
 # ---------------------------------------------------------------------------
 docs_enabled = os.getenv("QUETZAL_ENABLE_DOCS", "false").lower() == "true"
 app = FastAPI(
     title="Quetzal Command Center API",
     version="3.0.0",
-    description="Governed operational intelligence for Quetzal Telecom.",
+    description="Inteligencia operativa gobernada para Quetzal Telecom.",
     docs_url="/docs" if docs_enabled else None,
     redoc_url=None,
 )
@@ -675,12 +675,12 @@ def genie_query(payload: GenieQueryRequest):
         if payload.conversation_id else None
     )
     if payload.deep:
-        # Agent mode: SSE endpoint, returns full result directly
+        # Agent Mode usa SSE y devuelve el resultado completo directamente.
         result = _genie_agent_call(space, question, conversation_id)
         result["trace_id"] = trace_id
         return result
 
-    # Chat mode: continue the active conversation or start a new one.
+    # El modo chat continúa la conversación activa o inicia una nueva.
     endpoint = (
         f"{HOST}/api/2.0/genie/spaces/{space['id']}/conversations/"
         f"{conversation_id}/messages"
@@ -714,7 +714,7 @@ def genie_query(payload: GenieQueryRequest):
 
 
 def _parse_md_table(md_text: str):
-    """Parse a markdown table into structured {title, columns, rows}."""
+    """Convierte una tabla Markdown en {title, columns, rows}."""
     lines = md_text.strip().split("\n")
     title = ""
     header_idx = -1
@@ -741,7 +741,7 @@ def _parse_md_table(md_text: str):
             rows.append(vals[:len(cols)])
     if not rows:
         return None
-    # Detect numeric columns
+    # Detecta las columnas numéricas.
     col_meta = []
     for ci in range(len(cols)):
         samples = [rows[ri][ci] for ri in range(min(5, len(rows)))]
@@ -759,7 +759,7 @@ def _is_num(s: str) -> bool:
 
 
 def _strip_md_tables(text: str) -> str:
-    """Remove markdown tables from text to avoid duplication with rendered charts."""
+    """Elimina tablas Markdown del texto para no duplicar los gráficos renderizados."""
     return _re.sub(
         r'(\*\*[^*\n]+\*\*\s*\n+)?'
         r'\|[^\n]+\|\s*\n'
@@ -770,7 +770,7 @@ def _strip_md_tables(text: str) -> str:
 
 
 def _genie_agent_call(space: dict, question: str, conversation_id: str | None = None) -> dict:
-    """Call Genie Agent mode API (SSE), collect events, return structured result."""
+    """Invoca Genie Agent Mode mediante SSE y devuelve un resultado estructurado."""
     payload = {
         "input": [{
             "type": "message", "role": "user",
@@ -785,11 +785,11 @@ def _genie_agent_call(space: dict, question: str, conversation_id: str | None = 
     )
     _raise_upstream(r, "Genie Agent")
 
-    # Decode raw bytes as UTF-8 (Content-Type text/event-stream lacks charset,
-    # so requests defaults to ISO-8859-1 which corrupts accented chars).
+    # Decodifica los bytes como UTF-8. text/event-stream no declara charset y
+    # requests utiliza ISO-8859-1 de forma predeterminada, lo que daña los acentos.
     raw_text = r.content.decode("utf-8")
 
-    # Parse SSE events
+    # Procesa los eventos SSE.
     queries: list[dict] = []
     texts: list[str] = []
     chart_data_list: list[dict] = []
@@ -830,7 +830,7 @@ def _genie_agent_call(space: dict, question: str, conversation_id: str | None = 
                     if c.get("type") == "output_text" and c.get("text"):
                         texts.append(c["text"])
 
-    # Build attachments in same format as chat mode
+    # Construye los adjuntos con el mismo formato del modo chat.
     attachments: list[dict] = []
     for q in queries:
         attachments.append({"type": "query", "sql": q["sql"], "title": q["title"],
@@ -841,8 +841,8 @@ def _genie_agent_call(space: dict, question: str, conversation_id: str | None = 
         num_cols = [i for i, c in enumerate(cd["columns"]) if c["type"] == "DOUBLE"]
         if not str_cols or not num_cols:
             continue  # Skip lookup tables (no numeric) or pure-numeric tables
-        # Preserve all fields so the UI can choose the safest visual while keeping
-        # the complete result available in the data table.
+        # Conserva todos los campos para que la interfaz elija una visualización segura
+        # y mantenga el resultado completo disponible en la tabla de datos.
         attachments.append({"type": "chart_data", "title": cd["title"],
                             "query_index": chart_index,
                             "columns": cd["columns"], "rows": cd["rows"],
@@ -937,7 +937,7 @@ def genie_result(space_key: GenieSpace, conv_id: str, msg_id: str):
 
 @app.get("/api/genie/query-data/{space_key}/{conv_id}/{msg_id}/{attachment_id}")
 def genie_query_data(space_key: GenieSpace, conv_id: str, msg_id: str, attachment_id: str):
-    """Fetch query result data for a Genie attachment (used to render charts)."""
+    """Obtiene los datos de un adjunto de Genie para renderizar gráficos."""
     space = GENIE.get(space_key)
     if not space:
         raise HTTPException(400, "Espacio inválido")
@@ -991,7 +991,7 @@ _CHAT_SYSTEM = (
 
 
 def _chat_actor(request: Request | None) -> str:
-    """Use only verified proxy identity headers for memory partitioning."""
+    """Utiliza solo headers de identidad verificados para particionar la memoria."""
     if request is None:
         return "quetzal-operator"
     for header in ("x-forwarded-email", "x-databricks-user-email", "x-forwarded-user"):
@@ -1055,7 +1055,7 @@ def _select_chat_tools(
 
 
 def _extract_ai_text(response: dict[str, Any]) -> tuple[str, list[dict[str, str]]]:
-    """Extract text from Responses API and compatible chat payload variants."""
+    """Extrae texto de Responses API y de variantes compatibles de chat."""
     citations: list[dict[str, str]] = []
     candidates: list[str] = []
 
@@ -1188,7 +1188,7 @@ def ai_chat(request_data: ChatRequest, request: Request = None):
                        f"Pregunta actual: {message}"
                    )}]}]
 
-    # Step 1: call model (with or without web_search tool)
+    # Paso 1: invoca el modelo con o sin la herramienta web_search.
     payload = {
         "model": AI_MODEL,
         "max_output_tokens": 3000,
@@ -1201,10 +1201,10 @@ def ai_chat(request_data: ChatRequest, request: Request = None):
         _raise_upstream(r1, "AI Gateway")
         resp = r1.json()
     except http_requests.exceptions.Timeout:
-        raise HTTPException(504, "AI Gateway timeout (step 1)")
+        raise HTTPException(504, "AI Gateway superó el tiempo límite en el paso 1")
 
-    # Step 2: agentic tool-calling loop (max 3 rounds)
-    # MUST process ALL function_calls per round AND include tools in follow-up
+    # Paso 2: ciclo de herramientas del agente, con un máximo de 3 rondas.
+    # Procesa todas las function_calls de cada ronda e incluye las herramientas al continuar.
     web_search_used = False
     internal_data_used = False
     tool_events: list[dict[str, str]] = []
@@ -1269,8 +1269,8 @@ def ai_chat(request_data: ChatRequest, request: Request = None):
                 "max_output_tokens": 3000,
                 "input": conversation,
             }
-            # The last round is synthesis-only. This prevents a final function
-            # call from being mistaken for an empty answer when the budget ends.
+            # La última ronda solo sintetiza. Así, una function call final no se
+            # interpreta como respuesta vacía al agotarse el presupuesto.
             if _round + 1 < MAX_ROUNDS:
                 follow_up["tools"] = selected_tools
             rn = http_requests.post(AI_URL, headers=_headers(), json=follow_up, timeout=60)
@@ -1281,12 +1281,12 @@ def ai_chat(request_data: ChatRequest, request: Request = None):
         except HTTPException:
             raise
         except http_requests.exceptions.Timeout:
-            raise HTTPException(504, "AI Gateway timeout")
+            raise HTTPException(504, "AI Gateway superó el tiempo límite")
         except http_requests.exceptions.RequestException as e:
             log.warning(f"Round {_round+1} error: {e}")
             break
 
-    # Step 3: extract final text + citations, including compatible model variants.
+    # Paso 3: extrae el texto final y las citas, incluidas las variantes compatibles.
     text, model_citations = _extract_ai_text(resp)
     citations = _dedupe_citations(model_citations + source_citations)
     if not text:

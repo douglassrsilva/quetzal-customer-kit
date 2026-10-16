@@ -1,18 +1,12 @@
 # Quetzal Customer Kit
 
-Kit privado y reproducible para desplegar Quetzal en un workspace de Databricks controlado por el cliente. El repositorio contiene la aplicación React/FastAPI, Databricks Asset Bundle, la base de Terraform, contratos de datos y guías operativas.
+Proyecto reproducible para desplegar Quetzal en un workspace de Databricks administrado por su organización. Incluye la aplicación React/FastAPI, un Databricks Asset Bundle, módulos de Terraform, contratos de datos y guías de instalación y operación.
 
-## Acceso controlado al código
-
-Antes de clonar el kit, confirme en GitHub que el repositorio aparece como **Private** y que solo los equipos autorizados tienen acceso. La visibilidad privada evita exponer la topología de despliegue, aunque no reemplaza la sanitización ni permite almacenar secretos en Git.
-
-![Repositorio privado de Quetzal Customer Kit](docs/screenshots/assets/01-repository-private.png)
-
-*Figura 1 — Repositorio privado. Compruebe la etiqueta **Private**; el nombre de usuario y otros datos de la sesión fueron ocultados deliberadamente.*
+Puede evaluar la solución con datos sintéticos o conectarla a fuentes gobernadas de su organización. Ninguno de los dos modos requiere almacenar datos, credenciales ni archivos de estado en Git.
 
 ## Principios
 
-- ningún host, ID, usuario, token ni dato del entorno de origen;
+- ningún token, credencial, dato personal ni archivo de estado en el repositorio;
 - Terraform administra la base; DAB administra los artefactos de Databricks;
 - Unity Catalog y cómputo serverless de forma predeterminada;
 - ningún job recurrente: bootstrap, memoria, alertas y grafo son manuales;
@@ -45,7 +39,7 @@ make bootstrap TARGET=dev
 make memory TARGET=dev
 ```
 
-`synthetic-data` ejecuta un único job serverless manual con dos tareas: generación y certificación. La ejecución falla si los volúmenes, esquemas, claves, reglas contables, seguridad de la PII ficticia o cobertura de los recorridos de la demo son incorrectos. Para fuentes reales, no ejecute este job: implemente los adaptadores del modo `customer`.
+`synthetic-data` ejecuta un job serverless manual con dos tareas: generación y certificación. La ejecución falla si los volúmenes, esquemas, claves, reglas contables, protección de las identidades ficticias o cobertura de los flujos funcionales son incorrectos. Para fuentes reales, no ejecute este job: implemente los adaptadores del modo `customer`.
 
 El grafo está separado de forma intencional y solo debe ejecutarse cuando sea necesario generar un nuevo snapshot:
 
@@ -55,7 +49,7 @@ make graph TARGET=dev
 
 ## Modos de datos
 
-- `synthetic`: fuentes de telecomunicaciones deterministas, sin PII real, para demostraciones y pruebas.
+- `synthetic`: fuentes deterministas de telecomunicaciones, sin PII real, para evaluación, desarrollo y pruebas.
 - `customer`: vistas de adaptación implementadas por el cliente sobre sus fuentes gobernadas.
 
 El contrato canónico se encuentra en `data_contracts/`. El despliegue de la aplicación no concede acceso automático a las fuentes del cliente.
@@ -70,7 +64,9 @@ El contrato canónico se encuentra en `data_contracts/`. El despliegue de la apl
 6. [Validación](docs/05-validation.md)
 7. [Operación](docs/06-operations.md)
 8. [Seguridad](docs/07-security.md)
-9. [Trazabilidad de las capturas utilizadas en las guías](docs/screenshots/README.md)
+9. [Plan de datos sintéticos](docs/08-data-generation-plan.md)
+10. [Guía funcional](PRODUCT_GUIDE.md)
+11. [Capturas de referencia](docs/screenshots/README.md)
 
 ## Componentes
 
@@ -96,4 +92,6 @@ Aplicación Quetzal
 
 ## Soporte
 
-Abra una issue privada con el resultado de `make sanitize`, `make bundle-validate` y el identificador de la ejecución fallida. Nunca incluya tokens, PII ni archivos de state.
+Para un error funcional, abra una issue con el comando ejecutado, el mensaje de error redactado y el identificador de la ejecución. Incluya el resultado de `make sanitize` y `make bundle-validate` cuando corresponda. Nunca publique tokens, PII, archivos `.env`, archivos de state ni payloads de producción.
+
+Para una vulnerabilidad, siga las instrucciones de [SECURITY.md](SECURITY.md) y utilice un canal privado.

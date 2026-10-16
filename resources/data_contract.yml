@@ -1,8 +1,8 @@
 resources:
   jobs:
     quetzal_validate_data_contract:
-      name: "[${bundle.target}] Quetzal | Validate canonical data contract"
-      description: Read-only validation of required tables, columns and non-empty volumes. Manual only.
+      name: "[${bundle.target}] Quetzal | Validar contrato canónico de datos"
+      description: Valida tablas, columnas y volúmenes mínimos en modo de solo lectura. Ejecución manual.
       max_concurrent_runs: 1
       timeout_seconds: 1800
       tags:

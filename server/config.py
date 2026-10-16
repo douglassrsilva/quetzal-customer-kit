@@ -1,8 +1,8 @@
-"""Environment-driven configuration for Quetzal.
+"""Configuración de Quetzal mediante variables de entorno.
 
-Databricks Apps injects authentication variables at runtime. Product resource
-identifiers remain configurable so the same source can be promoted without
-editing Python code.
+Databricks Apps agrega las variables de autenticación durante la ejecución. Los
+identificadores de recursos permanecen configurables para promover el mismo código
+entre entornos sin editar archivos Python.
 """
 
 from __future__ import annotations
@@ -29,9 +29,9 @@ def _positive_int(name: str, default: int) -> int:
     try:
         value = int(raw)
     except ValueError as exc:
-        raise RuntimeError(f"{name} must be an integer") from exc
+        raise RuntimeError(f"{name} debe ser un entero") from exc
     if value <= 0:
-        raise RuntimeError(f"{name} must be greater than zero")
+        raise RuntimeError(f"{name} debe ser mayor que cero")
     return value
 
 

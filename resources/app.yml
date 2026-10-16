@@ -74,24 +74,24 @@ resources:
             value: ${var.external_research_enabled}
       resources:
         - name: lakebase
-          description: Histórico conversacional e rastreabilidade LTAP do Quetzal IQ
+          description: Historial conversacional y trazabilidad de Quetzal IQ en Lakebase
           postgres:
             branch: projects/${var.lakebase_project}/branches/${var.lakebase_branch}
             database: projects/${var.lakebase_project}/branches/${var.lakebase_branch}/databases/${resources.postgres_databases.quetzal_ltap_database.database_id}
             permission: CAN_CONNECT_AND_CREATE
         - name: analytics-warehouse
-          description: Consultas analíticas e estado operacional do Quetzal
+          description: Consultas analíticas y estado operativo de Quetzal
           sql_warehouse:
             id: ${var.sql_warehouse_id}
             permission: CAN_USE
         - name: genie-ingresos
-          description: Inteligência de receita e cobrança
+          description: Análisis de ingresos y cobranza
           genie_space:
             name: genie-ingresos
             space_id: ${resources.genie_spaces.quetzal_genie_ingresos.id}
             permission: CAN_RUN
         - name: genie-clientes
-          description: Inteligência de clientes e retenção
+          description: Análisis de clientes y retención
           genie_space:
             name: genie-clientes
             space_id: ${resources.genie_spaces.quetzal_genie_clientes.id}

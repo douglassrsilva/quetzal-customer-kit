@@ -1,2 +1,2 @@
-"""Backend building blocks for Quetzal Command Center."""
+"""Componentes del backend de Quetzal Command Center."""
 

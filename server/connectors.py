@@ -1,4 +1,4 @@
-"""Auditable operational connectors for CRM, BSS and OSS actions."""
+"""Conectores operativos auditables para acciones en CRM, BSS y OSS."""
 
 from __future__ import annotations
 
@@ -36,7 +36,7 @@ def connector_for(action_type: str, requested: str = "AUTO") -> str:
 
 
 def dispatch_action(action: dict, requested_connector: str = "AUTO") -> DispatchResult:
-    """Dispatch once using an idempotency key; internal queue is the safe default."""
+    """Envía una sola vez con clave de idempotencia; la cola interna es la opción predeterminada."""
     connector = connector_for(str(action.get("action_type") or ""), requested_connector)
     execution_ref = f"QZ-{uuid4().hex[:14].upper()}"
     if connector == "INTERNAL":

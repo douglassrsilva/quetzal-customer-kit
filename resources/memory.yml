@@ -1,7 +1,7 @@
 resources:
   jobs:
     quetzal_memory_foundation:
-      name: "[${bundle.target}] Quetzal | Managed Memory Foundation"
+      name: "[${bundle.target}] Quetzal | Aprovisionar Managed Memory"
       description: Aprovisiona y valida Managed Agent Memory de Quetzal IQ. Ejecución exclusivamente manual.
       max_concurrent_runs: 1
       timeout_seconds: 1800

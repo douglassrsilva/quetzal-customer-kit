@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replace exported AI/BI and Genie object IDs with stable kit-local IDs."""
+"""Reemplaza IDs exportados de AI/BI y Genie por IDs estables del proyecto."""
 
 from __future__ import annotations
 

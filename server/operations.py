@@ -1,4 +1,4 @@
-"""Operational telecom APIs: incidents, impact, actions, topology and scenarios."""
+"""API operativa de telecomunicaciones: incidentes, impacto, acciones, topología y escenarios."""
 
 from __future__ import annotations
 
@@ -77,7 +77,7 @@ def _validate_customer_id(customer_id: str) -> str:
 
 
 def _next_best_actions(profile: dict, tickets: list[dict], offers: list[dict]) -> list[dict]:
-    """Build deterministic, explainable recommendations from governed signals."""
+    """Construye recomendaciones deterministas y explicables a partir de señales gobernadas."""
     actions: list[dict] = []
     open_tickets = int(profile.get("open_tickets") or 0)
     baseline_churn = float(profile.get("churn_probability") or 0)
@@ -147,10 +147,10 @@ def _actor(request: Request) -> str:
 
 
 def _access(request: Request) -> dict:
-    """Resolve app identity into governed roles and optional country scope."""
+    """Resuelve la identidad de la aplicación en roles y alcance territorial gobernados."""
     actor = _actor(request)
     configured_admins = {item.strip().lower() for item in os.getenv("QUETZAL_ADMIN_USERS", "").split(",") if item.strip()}
-    # Local and contract-test calls do not pass Databricks identity headers.
+    # Las pruebas locales y de contrato no envían headers de identidad de Databricks.
     if actor == "quetzal-operator" or actor.lower() in configured_admins:
         return {"actor": actor, "roles": ["ADMIN", "NOC_OPERATOR", "ACTION_APPROVER", "CARE_AGENT"], "countries": []}
     rows = run_sql(
@@ -216,7 +216,7 @@ def _incident_select(where: str = "TRUE") -> str:
 
 
 def _customer_profile(customer_id: str) -> list[dict]:
-    """Prefer the graph-enriched 360 view while retaining pre-first-run availability."""
+    """Prioriza la vista 360 enriquecida con el grafo y admite el estado previo a la primera ejecución."""
     try:
         return run_sql(
             "SELECT * FROM ops_customer_graph_360 WHERE cliente_id = :customer_id",
@@ -239,7 +239,7 @@ def _number(value, default: float = 0.0) -> float:
 
 
 def _country_scope(country: str, access: dict, column: str) -> tuple[str, dict[str, str]]:
-    """Build a parameterized territorial filter for an allowlisted SQL column."""
+    """Construye un filtro territorial parametrizado para una columna SQL permitida."""
     if country != "ALL":
         _assert_country_access(access, country)
         return f"{column} = :country", {"country": country}
@@ -293,7 +293,7 @@ def _explanation_codes(value) -> list[str]:
 
 
 def _customer_explainability(profile: dict) -> dict:
-    """Keep churn probability separate from non-probabilistic graph signals."""
+    """Mantiene la probabilidad de churn separada de las señales no probabilísticas del grafo."""
     baseline = _number(profile.get("baseline_churn_probability"), _number(profile.get("churn_probability")))
     graph_available = bool(profile.get("graph_model_version"))
     priority = profile.get("retention_priority_score")
@@ -461,7 +461,7 @@ def _check_result(name: str, check) -> dict:
 
 
 def _preflight_checks(access: dict) -> list[dict]:
-    """Read-only dependency checks. This function never invokes models or jobs."""
+    """Comprueba dependencias en modo de solo lectura, sin invocar modelos ni jobs."""
     def warehouse():
         run_sql("SELECT 1 AS preflight", cache_ttl=0)
         return "READY", {"warehouse_id": settings.warehouse_id, "connectivity": "SQL_OK"}
@@ -480,7 +480,7 @@ def _preflight_checks(access: dict) -> list[dict]:
 
     def ai_gateway():
         if not settings.ai_model or not settings.ai_url:
-            return "NOT_CONFIGURED", {"reason": "AI model or gateway URL is missing"}
+            return "NOT_CONFIGURED", {"reason": "Falta el modelo de IA o la URL del gateway"}
         return "READY", {
             "model": settings.ai_model,
             "gateway": settings.ai_url,
@@ -489,7 +489,7 @@ def _preflight_checks(access: dict) -> list[dict]:
 
     def lakebase():
         if not conversation_store.enabled:
-            return "NOT_CONFIGURED", {"reason": "Lakebase connection variables are incomplete"}
+            return "NOT_CONFIGURED", {"reason": "Las variables de conexión de Lakebase están incompletas"}
         with conversation_store._connection() as connection, connection.cursor() as cursor:
             cursor.execute("SELECT 1")
             cursor.fetchone()
@@ -497,19 +497,19 @@ def _preflight_checks(access: dict) -> list[dict]:
 
     def managed_memory():
         if not managed_agent_memory.enabled:
-            return "NOT_CONFIGURED", {"reason": "Managed Agent Memory store is not configured"}
+            return "NOT_CONFIGURED", {"reason": "Managed Agent Memory no está configurado"}
         workspace_client().api_client.do("GET", f"/api/2.1/unity-catalog/memory-stores/{managed_agent_memory.store_name}")
         return "READY", {"store": managed_agent_memory.store_name, "probe": "METADATA_ONLY"}
 
     def dashboard():
         if not settings.dashboard_id:
-            return "NOT_CONFIGURED", {"reason": "Dashboard ID is missing"}
+            return "NOT_CONFIGURED", {"reason": "Falta el ID del dashboard"}
         workspace_client().api_client.do("GET", f"/api/2.0/lakeview/dashboards/{settings.dashboard_id}")
         return "READY", {"dashboard_id": settings.dashboard_id, "probe": "METADATA_ONLY"}
 
     def rbac():
         if not access.get("roles"):
-            return "FAILED", {"actor": access.get("actor"), "reason": "No active operational role"}
+            return "FAILED", {"actor": access.get("actor"), "reason": "El usuario no tiene un rol operativo activo"}
         return "READY", {"actor": access.get("actor"), "roles": access["roles"], "country_scope": access.get("countries") or ["ALL"]}
 
     def graph_snapshot():
@@ -522,8 +522,8 @@ def _preflight_checks(access: dict) -> list[dict]:
             rows = []
         if rows:
             return "READY", {"latest_snapshot": rows[0], "source": "RUN_LOG", "policy_status": "CURRENT"}
-        # Snapshots created before the audited run log remain valid demo data.
-        # Detect the governed published view without starting the manual job.
+        # Los snapshots anteriores al registro auditado siguen siendo válidos.
+        # Detecta la vista gobernada publicada sin iniciar el job manual.
         published = run_sql(
             """SELECT graph_model_version AS model_version, MAX(graph_scored_at) AS computed_at,
                       COUNT(*) AS customers
@@ -533,7 +533,7 @@ def _preflight_checks(access: dict) -> list[dict]:
             cache_ttl=0,
         )
         if not published:
-            return "NOT_CONFIGURED", {"reason": "No published Graph Intelligence snapshot"}
+            return "NOT_CONFIGURED", {"reason": "No hay un snapshot publicado de Graph Intelligence"}
         snapshot = published[0]
         qualified = snapshot.get("model_version") in {
             "graph-fusion-v2-qualified", "graph-intelligence-v3-ontobricks",
@@ -556,7 +556,7 @@ def _preflight_checks(access: dict) -> list[dict]:
         except SqlExecutionError:
             return "NOT_CONFIGURED", {
                 "contract": "gold_quetzal_knowledge_graph_triples",
-                "reason": "Compatible export will be published by the next manual graph refresh",
+                "reason": "La próxima actualización manual del grafo publicará la exportación compatible",
                 "external_app_configured": bool(settings.ontobricks_url),
             }
         return "READY", {
@@ -594,7 +594,7 @@ def current_operator(request: Request):
 
 @router.get("/demo/preflight")
 def demo_preflight(request: Request):
-    """Run manual, read-only readiness checks without AI inference or job execution."""
+    """Ejecuta comprobaciones de solo lectura sin inferencia de IA ni ejecución de jobs."""
     access = _require_role(request, "NOC_OPERATOR", "CARE_AGENT", "EXECUTIVE_VIEWER")
     checks = _preflight_checks(access)
     statuses = {item["status"] for item in checks}
@@ -619,7 +619,7 @@ def demo_journey(
     request: Request,
     country: str = Query(default="ALL", pattern=r"^(ALL|PA|MX|CO|BR|AR|CL|PE|EC|CR|GT|DO|UY)$"),
 ):
-    """Select a deterministic, real-data incident-to-customer demo path."""
+    """Selecciona un flujo determinista entre un incidente y un cliente del mismo mercado."""
     access = _require_role(request, "NOC_OPERATOR", "CARE_AGENT", "EXECUTIVE_VIEWER")
     if country != "ALL":
         _assert_country_access(access, country)
@@ -714,7 +714,7 @@ def demo_journey(
 
 @router.post("/demo/financial-impact")
 def financial_impact(payload: FinancialImpactRequest, request: Request):
-    """Estimate retention economics from explicit, reversible assumptions."""
+    """Estima el impacto económico de retención con supuestos explícitos y reversibles."""
     access = _require_role(request, "NOC_OPERATOR", "CARE_AGENT", "EXECUTIVE_VIEWER")
     if payload.country != "ALL":
         _assert_country_access(access, payload.country)
@@ -819,7 +819,7 @@ def voice_of_customer_overview(
     window_days: int = Query(default=90, ge=7, le=365),
     max_themes: int = Query(default=8, ge=1, le=8),
 ):
-    """Derive synthetic customer themes from governed operational evidence."""
+    """Deriva temas de clientes sintéticos a partir de señales operativas gobernadas."""
     access = _require_role(request, "CARE_AGENT", "NOC_OPERATOR", "EXECUTIVE_VIEWER")
     scope_filter, scope_params = _country_scope(country, access, "c.pais_codigo")
     parameters: dict[str, str | int] = {**scope_params, "window_days": window_days}
@@ -1032,7 +1032,7 @@ def voice_of_customer_overview(
             "theme_mapping_version": "voc-rules-v1",
         },
         "limitations": [
-            "Todos los datos y ejemplos son sintéticos y sirven únicamente para demostración.",
+            "Todos los datos y ejemplos son sintéticos y no representan clientes ni eventos reales.",
             "Los temas se derivan de reglas sobre categoría y motivo; no son sentimiento generado por un modelo.",
             "NPS, tickets y SLA tienen cadencias distintas y no prueban causalidad.",
         ],
@@ -1042,7 +1042,7 @@ def voice_of_customer_overview(
 
 @router.post("/campaigns/optimize")
 def optimize_campaign(payload: CampaignOptimizeRequest, request: Request):
-    """Create a deterministic campaign draft without writes, connectors or execution."""
+    """Crea un borrador determinista de campaña sin escrituras, conectores ni ejecución."""
     access = _require_role(request, "CARE_AGENT")
     scope_filter, scope_params = _country_scope(payload.country, access, "c.pais_codigo")
     source_theme = payload.source_theme_id or "ALL"
@@ -1316,7 +1316,7 @@ def customer_search(
     q: str = Query(min_length=2, max_length=120),
     country: str | None = Query(default=None, pattern=r"^[A-Z]{2}$"),
 ):
-    """Search the governed customer index by ID, name, email or phone."""
+    """Busca clientes por ID, nombre, email o teléfono en el índice gobernado."""
     if country and country not in COUNTRIES:
         raise HTTPException(400, "País inválido.")
     access = _access(request)
@@ -1351,7 +1351,7 @@ def customer_search(
 
 @router.get("/customers/{customer_id}/360")
 def customer_360(customer_id: str, request: Request):
-    """Return an individual customer profile and explainable recommendations."""
+    """Devuelve el perfil individual de un cliente y recomendaciones explicables."""
     access = _require_role(request, "CARE_AGENT", "NOC_OPERATOR")
     customer_id = _validate_customer_id(customer_id)
     params = {"customer_id": customer_id}
@@ -1519,7 +1519,7 @@ def _graph_job_id() -> int:
 
 @router.post("/graph/runs", status_code=202)
 def run_graph_intelligence(request: Request):
-    """Start the DAB-managed workflow. No scheduler exists for this workload."""
+    """Inicia el workflow administrado por DAB. Esta carga no tiene scheduler."""
     access = _require_role(request, "ADMIN")
     job_id = _graph_job_id()
     active = list(workspace_client().jobs.list_runs(job_id=job_id, active_only=True, limit=1))
@@ -1559,7 +1559,7 @@ def graph_run(run_id: int):
 
 @router.get("/graph/methodology")
 def graph_methodology():
-    """Describe the active graph semantics without running any paid workload."""
+    """Describe la semántica activa del grafo sin ejecutar cargas adicionales."""
     snapshot: dict = {}
     triples: dict = {}
     try:
@@ -1616,7 +1616,7 @@ def graph_methodology():
             },
             {
                 "id": "RELATIONSHIP_GROUP", "label": "Grupo de relaciones", "algorithm": "Label Propagation ponderado determinístico",
-                "output": "Cohorte operacional", "role": "Agrupa clientes para descoberta e ação, sin atribuir causalidad.",
+                "output": "Cohorte operacional", "role": "Agrupa clientes para exploración y acción, sin atribuir causalidad.",
             },
             {
                 "id": "RETENTION_PRIORITY", "label": "Prioridad de retención", "algorithm": "Ranking compuesto explicable",
@@ -1640,7 +1640,7 @@ def graph_methodology():
             "analytics_policy": "Quetzal calcula señales ponderadas; el analytics genérico no debe reemplazarlas porque deduplica relaciones sin peso.",
         },
         "limitations": [
-            "Los contactos y eventos de la demo son sintéticos.",
+            "Los contactos y eventos son sintéticos.",
             "No existe churn observado positivo en el snapshot actual para comparar AUC o calibración.",
             "La ejecución manual debe publicar v3 antes de que sus nuevas señales aparezcan en los perfiles.",
         ],
@@ -1654,7 +1654,7 @@ def customer_graph(
     max_neighbors: int = Query(default=30, ge=5, le=60),
     affinity: str = Query(default="ALL", pattern=r"^(ALL|FREQUENT|HOUSEHOLD|SOCIAL|WORK|OTHER|CROSS_BORDER)$"),
 ):
-    """Return a bounded ego network for Customer 360."""
+    """Devuelve una red ego acotada para Cliente 360."""
     access = _require_role(request, "CARE_AGENT")
     customer_id = _validate_customer_id(customer_id)
     params = {"customer_id": customer_id, "affinity": affinity}
@@ -1792,7 +1792,7 @@ def graph_network(
     risk_tier: str = Query(default="ALL", pattern=r"^(ALL|CRITICAL|HIGH|MEDIUM|LOW)$"),
     limit: int = Query(default=120, ge=20, le=250),
 ):
-    """Return bounded community or customer graph payloads for the explorer."""
+    """Devuelve grupos o clientes acotados para el explorador del grafo."""
     access = _access(request)
     _assert_country_access(access, None if country == "ALL" else country)
     params: dict = {"country": country, "risk_tier": risk_tier}
@@ -1925,7 +1925,7 @@ def graph_community_operational(
     limit: int = Query(default=25, ge=10, le=100),
     offset: int = Query(default=0, ge=0, le=10000),
 ):
-    """Turn a detected graph community into an actionable, governed customer cohort."""
+    """Convierte un grupo detectado en una cohorte gobernada y accionable."""
     access = _require_role(request, "CARE_AGENT")
     if len(community_id) != 14 or not community_id.startswith("COM-") or not all(
         char in "0123456789abcdef" for char in community_id[4:]
@@ -2598,7 +2598,7 @@ def evaluate_alerts(request: Request):
                             "notification_status": notification_status},
             )
             triggered += 1
-    _audit("ALERT_EVALUATION", "alert_engine", "scheduled-or-manual", access["actor"], {"triggered": triggered, "unsupported": unsupported})
+    _audit("ALERT_EVALUATION", "alert_engine", "manual", access["actor"], {"triggered": triggered, "unsupported": unsupported})
     return {"rules_evaluated": len(rules), "signals_triggered": triggered, "unsupported_metrics": sorted(set(unsupported))}
 
 
@@ -2676,12 +2676,12 @@ def governance_trust():
         "metric_definitions": [
             {"name": "network_health_score", "definition": "Porcentaje de mediciones sin alerta", "contractual_uptime": False, "owner": "Network Operations"},
             {"name": "revenue_at_risk", "definition": "Clientes afectados × valor mensual × factor de severidad", "contractual_uptime": None, "owner": "Finance & CX"},
-            {"name": "customer_impact_score", "definition": "Impacto ponderado por clientes, valor, churn y severidad", "contractual_uptime": None, "owner": "Customer Operations"},
+            {"name": "customer_impact_score", "definition": "Impacto ponderado por clientes, valor, churn y severidad", "contractual_uptime": None, "owner": "Operaciones de Clientes"},
         ],
         "lineage": [
-            {"product": "Incident Center", "sources": ["gold_network_anomalies", "silver_tickets", "gold_churn_predictions"]},
-            {"product": "Network Topology", "sources": ["silver_telemetria_red", "bronze_torres_red", "gold_network_health"]},
-            {"product": "Proactive Care", "sources": ["gold_churn_predictions"]},
+            {"product": "Centro de Incidentes", "sources": ["gold_network_anomalies", "silver_tickets", "gold_churn_predictions"]},
+            {"product": "Topología de Red", "sources": ["silver_telemetria_red", "bronze_torres_red", "gold_network_health"]},
+            {"product": "Atención Proactiva", "sources": ["gold_churn_predictions"]},
         ],
         "audit": audit,
     }

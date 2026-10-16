@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate customer configuration without contacting the workspace."""
+"""Valida la configuración local sin conectarse al workspace."""
 
 from __future__ import annotations
 
@@ -36,11 +36,11 @@ def main() -> None:
     examples = sorted(key for key in REQUIRED if PLACEHOLDER.search(values.get(key, "")))
     if missing or examples:
         if missing:
-            print("Missing values:", ", ".join(missing))
+            print("Faltan valores:", ", ".join(missing))
         if examples:
-            print("Replace example values:", ", ".join(examples))
+            print("Reemplace los valores de ejemplo:", ", ".join(examples))
         raise SystemExit(1)
-    print(f"Configuration preflight passed ({len(REQUIRED)} required values)")
+    print(f"Configuración validada: {len(REQUIRED)} valores obligatorios")
 
 
 if __name__ == "__main__":

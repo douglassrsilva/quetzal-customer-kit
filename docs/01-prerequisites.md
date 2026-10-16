@@ -9,6 +9,8 @@
 - un administrador capaz de configurar la federación OIDC entre GitHub y Databricks;
 - grupos separados para usuarios y administradores de Quetzal.
 
+Después de crear el repositorio de su organización, reemplace los responsables de `.github/CODEOWNERS` por usuarios o equipos válidos y configure la protección de la rama principal.
+
 ## Herramientas locales
 
 ```bash

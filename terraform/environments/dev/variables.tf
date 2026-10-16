@@ -1,10 +1,10 @@
 variable "databricks_host" {
-  description = "Target Databricks workspace URL."
+  description = "URL del workspace de Databricks."
   type        = string
 }
 
 variable "databricks_profile" {
-  description = "Local OAuth profile. CI should use workload identity environment variables instead."
+  description = "Perfil OAuth local. En CI, utilice variables de entorno con workload identity."
   type        = string
   default     = null
   nullable    = true

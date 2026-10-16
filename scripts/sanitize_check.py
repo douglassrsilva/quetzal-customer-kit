@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail closed when origin identifiers, credentials or private artifacts leak."""
+"""Detecta credenciales, identificadores concretos y artefactos locales no permitidos."""
 
 from __future__ import annotations
 
@@ -14,18 +14,18 @@ TEXT_SUFFIXES = {
     ".md", ".py", ".sh", ".sql", ".toml", ".ts", ".tsx", ".ttl", ".txt", ".yaml", ".yml",
 }
 SECRET_PATTERNS = {
-    "Databricks token": re.compile(r"\bdapi[a-zA-Z0-9]{20,}\b"),
-    "GitHub token": re.compile(r"\b(?:ghp|gho|ghu|ghs|github_pat)_[A-Za-z0-9_]{20,}\b"),
-    "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
-    "AWS access key": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
+    "token de Databricks": re.compile(r"\bdapi[a-zA-Z0-9]{20,}\b"),
+    "token de GitHub": re.compile(r"\b(?:ghp|gho|ghu|ghs|github_pat)_[A-Za-z0-9_]{20,}\b"),
+    "clave privada": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+    "clave de acceso de AWS": re.compile(r"\bAKIA[0-9A-Z]{16}\b"),
 }
 EMAIL = re.compile(r"[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})")
 HOST = re.compile(r"https://([A-Za-z0-9.-]+\.cloud\.databricks\.com)")
-ORIGIN_PATTERNS = {
-    "personal catalog": re.compile(r"\bclassic_stable_[a-z0-9_]+_catalog\b", re.IGNORECASE),
-    "personal workspace host": re.compile(r"\bfevm-[a-z0-9-]+\.cloud\.databricks\.com\b", re.IGNORECASE),
-    "personal LTAP project": re.compile(r"\b[a-z][a-z0-9-]*-ltap\b", re.IGNORECASE),
-    "concrete workspace/warehouse ID": re.compile(r"\b(?!0{16}\b)[0-9]{16}\b"),
+ENVIRONMENT_PATTERNS = {
+    "catálogo no permitido": re.compile(r"\bclassic_stable_[a-z0-9_]+_catalog\b", re.IGNORECASE),
+    "host de workspace no permitido": re.compile(r"\bfevm-[a-z0-9-]+\.cloud\.databricks\.com\b", re.IGNORECASE),
+    "proyecto LTAP concreto": re.compile(r"\b[a-z][a-z0-9-]*-ltap\b", re.IGNORECASE),
+    "ID concreto de workspace o warehouse": re.compile(r"\b(?!0{16}\b)[0-9]{16}\b"),
 }
 UUID = re.compile(r"\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b", re.IGNORECASE)
 
@@ -47,7 +47,7 @@ def main() -> None:
     forbidden_paths = [ROOT / ".env", ROOT / "terraform.tfstate"]
     if os.getenv("CI", "").lower() == "true":
         forbidden_paths.append(ROOT / "config/customer.env")
-    failures.extend(f"forbidden local artifact: {path.relative_to(ROOT)}" for path in forbidden_paths if path.exists())
+    failures.extend(f"artefacto local no permitido: {path.relative_to(ROOT)}" for path in forbidden_paths if path.exists())
 
     for path in files():
         try:
@@ -55,29 +55,29 @@ def main() -> None:
         except UnicodeDecodeError:
             continue
         relative = path.relative_to(ROOT)
-        for label, pattern in ORIGIN_PATTERNS.items():
+        for label, pattern in ENVIRONMENT_PATTERNS.items():
             if pattern.search(text):
                 failures.append(f"{label}: {relative}")
         if relative.suffix in {".yml", ".yaml", ".env"} and UUID.search(text):
-            failures.append(f"concrete principal UUID: {relative}")
+            failures.append(f"UUID concreto de un principal: {relative}")
         for label, pattern in SECRET_PATTERNS.items():
             if pattern.search(text):
                 failures.append(f"{label}: {relative}")
         for match in EMAIL.finditer(text):
             domain = match.group(1).lower()
             if domain not in {"example.com", "example.org"}:
-                failures.append(f"non-example email: {relative}")
+                failures.append(f"email fuera de los dominios de ejemplo: {relative}")
         for match in HOST.finditer(text):
             host = match.group(1).lower()
             if host != "customer-workspace.cloud.databricks.com":
-                failures.append(f"workspace host: {relative}")
+                failures.append(f"host de workspace: {relative}")
 
     if failures:
-        print("Sanitization failed:")
+        print("La verificación de seguridad falló:")
         for failure in sorted(set(failures)):
             print(f"- {failure}")
         raise SystemExit(1)
-    print(f"Sanitization passed across {len(files())} text files")
+    print(f"Verificación de seguridad aprobada en {len(files())} archivos de texto")
 
 
 if __name__ == "__main__":

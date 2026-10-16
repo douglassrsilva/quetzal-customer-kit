@@ -42,7 +42,7 @@ export function VoiceOfCustomerPage({openCustomer,openCampaign}:VoiceProps){
   const summary=data?.summary||{}
   return <div className="voc-page stack-lg">
     <section className="voc-hero panel-dark">
-      <div><span className="overline"><MessageCircle/>VOZ DEL CLIENTE</span><h2>Escuchar la señal.<br/><em>Actuar sobre la causa.</em></h2><p>Convierte tickets, NPS y SLA en temas explicables, clientes afectados y focos de acción. Las síntesis son demostrativas; nunca se presentan como transcripciones.</p></div>
+      <div><span className="overline"><MessageCircle/>VOZ DEL CLIENTE</span><h2>Escuchar la señal.<br/><em>Actuar sobre la causa.</em></h2><p>Convierte tickets, NPS y SLA en temas explicables, clientes afectados y focos de acción. Las síntesis usan datos sintéticos y no se presentan como transcripciones.</p></div>
       <div className="voc-hero-controls"><label><span>Mercado</span><select value={country} onChange={e=>setCountry(e.target.value)}>{COUNTRIES.map(code=><option value={code} key={code}>{code==='ALL'?'Toda LATAM':`${FLAGS[code]} ${code}`}</option>)}</select></label><label><span>Ventana</span><select value={windowDays} onChange={e=>setWindowDays(Number(e.target.value))}><option value="30">30 días</option><option value="60">60 días</option><option value="90">90 días</option><option value="180">180 días</option></select></label><span className="demo-data-badge"><Database/>DATOS SINTÉTICOS</span></div>
     </section>
     {loading&&<Loading label="Leyendo señales de clientes…"/>}

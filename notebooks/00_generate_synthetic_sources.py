@@ -1,11 +1,11 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Quetzal · Deterministic telecom demo data
+# MAGIC # Quetzal · Datos sintéticos deterministas de telecomunicaciones
 # MAGIC
-# MAGIC Approved generation plan: Tier 3 serverless notebook, seed 42, 10,000
-# MAGIC customers, 11 canonical source tables and 10 gold derivations. Output is
-# MAGIC restricted to the customer-supplied Unity Catalog namespace. Every
-# MAGIC identity is explicitly fictitious and non-routable.
+# MAGIC Plan de generación: notebook serverless Tier 3, semilla 42, 10.000 clientes,
+# MAGIC 11 tablas fuente canónicas y 10 derivaciones Gold. La salida se limita al
+# MAGIC catálogo y esquema configurados. Todas las identidades son ficticias y los
+# MAGIC datos de contacto no son enrutables.
 
 # COMMAND ----------
 
@@ -32,17 +32,17 @@ overwrite_confirmation = dbutils.widgets.get("overwrite_confirmation").strip()
 
 identifier = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 if not identifier.fullmatch(catalog) or not identifier.fullmatch(schema):
-    raise ValueError("catalog and schema are required valid identifiers")
+    raise ValueError("catalog y schema son obligatorios y deben ser identificadores válidos")
 if not 1_000 <= customer_count <= 250_000:
-    raise ValueError("customer_count must be between 1,000 and 250,000")
+    raise ValueError("customer_count debe estar entre 1.000 y 250.000")
 if not -(2**31) <= seed < 2**31:
-    raise ValueError("seed must be a signed 32-bit integer")
+    raise ValueError("seed debe ser un entero de 32 bits con signo")
 try:
     date.fromisoformat(anchor_date)
 except ValueError as exc:
-    raise ValueError("anchor_date must use ISO YYYY-MM-DD format") from exc
+    raise ValueError("anchor_date debe utilizar el formato ISO YYYY-MM-DD") from exc
 if overwrite_confirmation != "SYNTHETIC_DEMO_ONLY":
-    raise ValueError("overwrite_confirmation must be SYNTHETIC_DEMO_ONLY")
+    raise ValueError("overwrite_confirmation debe ser SYNTHETIC_DEMO_ONLY")
 
 fq = f"`{catalog}`.`{schema}`"
 run_id = uuid4().hex
@@ -95,16 +95,16 @@ def table_property(table: str, key: str) -> str | None:
         return None
 
 
-# Validate every destructive boundary before creating the schema or replacing a
-# table. A rerun may only replace tables created by this kit in synthetic mode.
+# Valida los límites de escritura antes de crear el esquema o reemplazar una tabla.
+# Una nueva ejecución solo puede reemplazar tablas creadas por este kit en modo sintético.
 for table in sorted(managed_tables):
     if spark.catalog.tableExists(f"{catalog}.{schema}.{table}"):
         classification = table_property(table, "data_classification")
         generator = table_property(table, "generated_by")
         if classification != "synthetic" or generator != "quetzal-customer-kit":
             raise RuntimeError(
-                f"Refusing to replace {catalog}.{schema}.{table}: existing object is not owned "
-                "by the Quetzal Customer Kit synthetic generator"
+                f"No se reemplazará {catalog}.{schema}.{table}: el objeto existente no pertenece "
+                "al generador de datos sintéticos de Quetzal"
             )
 
 sql(f"CREATE SCHEMA IF NOT EXISTS {fq}")
@@ -130,7 +130,7 @@ def write_table(table: str, select_sql: str, expected_count: int | None = None) 
     """)
     actual_count = sql(f"SELECT count(*) AS n FROM {fq}.`{table}`").first()["n"]
     if expected_count is not None and actual_count != expected_count:
-        raise RuntimeError(f"{table}: expected {expected_count} rows, generated {actual_count}")
+        raise RuntimeError(f"{table}: se esperaban {expected_count} filas y se generaron {actual_count}")
     generation_report.append({"table": table, "rows": actual_count})
 
 

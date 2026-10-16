@@ -10,12 +10,12 @@ catalog = dbutils.widgets.get("catalog").strip()
 schema = dbutils.widgets.get("schema").strip()
 app_name = dbutils.widgets.get("app_name").strip()
 admin_users = [item.strip().lower() for item in dbutils.widgets.get("admin_users").split(",") if item.strip()]
-assert catalog and schema and app_name, "catalog, schema and app_name are required"
-assert admin_users, "at least one initial admin user is required"
-assert all(re.fullmatch(r"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}", item) for item in admin_users), "invalid admin user"
-assert catalog.replace("_", "").isalnum(), "invalid catalog"
-assert schema.replace("_", "").isalnum(), "invalid schema"
-assert app_name.replace("-", "").isalnum(), "invalid app name"
+assert catalog and schema and app_name, "catalog, schema y app_name son obligatorios"
+assert admin_users, "se requiere al menos un administrador inicial"
+assert all(re.fullmatch(r"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}", item) for item in admin_users), "usuario administrador inválido"
+assert catalog.replace("_", "").isalnum(), "catalog inválido"
+assert schema.replace("_", "").isalnum(), "schema inválido"
+assert app_name.replace("-", "").isalnum(), "app_name inválido"
 fq = f"`{catalog}`.`{schema}`"
 
 
@@ -472,4 +472,4 @@ if app_principal:
                   "ops_user_roles", "ops_recommendation_log"):
         sql(f"GRANT SELECT, MODIFY ON TABLE {fq}.`{table}` TO {principal}")
 
-print(f"Quetzal operational model ready in {catalog}.{schema}")
+print(f"Modelo operativo de Quetzal listo en {catalog}.{schema}")

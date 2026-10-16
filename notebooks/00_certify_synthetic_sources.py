@@ -1,10 +1,10 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # Quetzal · Synthetic demo-data certification
+# MAGIC # Quetzal · Certificación de datos sintéticos
 # MAGIC
-# MAGIC This task is a blocking quality gate. The parent job only succeeds when
-# MAGIC the generated data satisfies the canonical contract and supports the
-# MAGIC complete telecom demo journey.
+# MAGIC Esta tarea es un control de calidad bloqueante. El job finaliza correctamente
+# MAGIC solo cuando los datos cumplen el contrato canónico y cubren los flujos
+# MAGIC funcionales de telecomunicaciones.
 
 # COMMAND ----------
 
@@ -29,9 +29,9 @@ anchor_date = dbutils.widgets.get("anchor_date").strip()
 
 identifier = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 if not identifier.fullmatch(catalog) or not identifier.fullmatch(schema):
-    raise ValueError("catalog and schema are required valid identifiers")
+    raise ValueError("catalog y schema son obligatorios y deben ser identificadores válidos")
 if not 1_000 <= customer_count <= 250_000:
-    raise ValueError("customer_count must be between 1,000 and 250,000")
+    raise ValueError("customer_count debe estar entre 1.000 y 250.000")
 date.fromisoformat(anchor_date)
 
 fq = f"`{catalog}`.`{schema}`"
@@ -108,8 +108,8 @@ generation_run_ids: set[str] = set()
 
 for table, columns in required_columns.items():
     if table not in available:
-        failures.append(f"missing table {table}")
-        checks.append({"check": f"schema:{table}", "status": "FAIL", "detail": "missing table"})
+        failures.append(f"falta la tabla {table}")
+        checks.append({"check": f"schema:{table}", "status": "FAIL", "detail": "falta la tabla"})
         continue
     actual_columns = {
         row.col_name.lower()
@@ -118,7 +118,7 @@ for table, columns in required_columns.items():
     }
     missing = sorted(columns - actual_columns)
     if missing:
-        failures.append(f"{table}: missing columns {', '.join(missing)}")
+        failures.append(f"{table}: faltan las columnas {', '.join(missing)}")
     checks.append({"check": f"schema:{table}", "status": "PASS" if not missing else "FAIL", "detail": missing})
 
     properties = {
@@ -140,7 +140,7 @@ for table, columns in required_columns.items():
     if properties["generation_run_id"]:
         generation_run_ids.add(str(properties["generation_run_id"]))
     if mismatches:
-        failures.append(f"{table}: invalid provenance properties ({', '.join(mismatches)})")
+        failures.append(f"{table}: propiedades de procedencia inválidas ({', '.join(mismatches)})")
     checks.append({"check": f"provenance:{table}", "status": "PASS" if not mismatches else "FAIL", "detail": mismatches})
 
 for table, expected in expected_counts.items():
@@ -149,28 +149,28 @@ for table, expected in expected_counts.items():
     actual = scalar(f"SELECT count(*) AS n FROM {fq}.`{table}`")
     passed = actual == expected
     if not passed:
-        failures.append(f"{table}: expected {expected} rows, found {actual}")
+        failures.append(f"{table}: se esperaban {expected} filas y se encontraron {actual}")
     checks.append({"check": f"volume:{table}", "status": "PASS" if passed else "FAIL", "actual": actual, "expected": expected})
 
 if len(generation_run_ids) != 1:
-    failures.append(f"tables do not share one generation_run_id: {sorted(generation_run_ids)}")
+    failures.append(f"las tablas no comparten un único generation_run_id: {sorted(generation_run_ids)}")
 
 
 def zero_check(name: str, query: str) -> None:
     actual = int(scalar(query))
     if actual != 0:
-        failures.append(f"{name}: expected 0 violations, found {actual}")
+        failures.append(f"{name}: se esperaban 0 incumplimientos y se encontraron {actual}")
     checks.append({"check": name, "status": "PASS" if actual == 0 else "FAIL", "violations": actual})
 
 
 def minimum_check(name: str, query: str, minimum: int) -> None:
     actual = int(scalar(query))
     if actual < minimum:
-        failures.append(f"{name}: expected at least {minimum}, found {actual}")
+        failures.append(f"{name}: se esperaban al menos {minimum} filas y se encontraron {actual}")
     checks.append({"check": name, "status": "PASS" if actual >= minimum else "FAIL", "actual": actual, "minimum": minimum})
 
 
-# Primary keys and relationships.
+# Claves primarias y relaciones.
 for table, key in {
     "bronze_segmentos": "segmento_id",
     "bronze_planes": "plan_id",
@@ -195,7 +195,7 @@ zero_check("fk:nps_customers", f"SELECT count(*) AS n FROM {fq}.silver_nps n LEF
 zero_check("fk:telemetry_towers", f"SELECT count(*) AS n FROM {fq}.silver_telemetria_red m LEFT ANTI JOIN {fq}.bronze_torres_red t ON m.torre_id=t.torre_id")
 zero_check("fk:cdr_customer_subscription", f"SELECT count(*) AS n FROM {fq}.silver_cdrs d LEFT ANTI JOIN {fq}.silver_suscripciones s ON d.suscripcion_id=s.suscripcion_id AND d.cliente_id=s.cliente_id AND d.plan_id=s.plan_id")
 
-# Domain, accounting and privacy invariants.
+# Reglas de dominio, contabilidad y privacidad.
 zero_check("pii:fictitious_only", f"""SELECT count(*) AS n FROM {fq}.silver_clientes
   WHERE nombre_completo NOT LIKE 'Cliente Demo %' OR email NOT LIKE 'customer%@example.com' OR telefono NOT LIKE '+000%'""")
 zero_check("domain:countries", f"""SELECT count(*) AS n FROM {fq}.silver_clientes
@@ -219,7 +219,7 @@ zero_check("business:single_churn_source", f"""SELECT count(*) AS n FROM {fq}.go
   JOIN {fq}.silver_churn_features f USING (cliente_id)
   WHERE abs(p.churn_probability - f.churn_risk_score) > 0.00001""")
 
-# Coverage gates for the actual demo narrative.
+# Controles de cobertura para los flujos funcionales.
 minimum_check("coverage:all_countries", f"SELECT count(DISTINCT pais_codigo) AS n FROM {fq}.silver_clientes", 12)
 minimum_check("coverage:all_segments", f"SELECT count(DISTINCT segmento_id) AS n FROM {fq}.silver_clientes", 3)
 minimum_check("coverage:all_product_verticals", f"SELECT count(DISTINCT vertical) AS n FROM {fq}.bronze_planes", 5)
@@ -241,7 +241,7 @@ minimum_check("journey:next_best_offer", f"""SELECT count(*) AS n FROM {fq}.silv
   WHERE c.estado='ACTIVO' AND c.acepta_marketing
     AND EXISTS (SELECT 1 FROM {fq}.bronze_planes p WHERE p.segmento=c.segmento_id)""", max(100, customer_count // 10))
 
-# A compact stable fingerprint detects non-determinism across equivalent runs.
+# Un fingerprint compacto y estable detecta variaciones entre ejecuciones equivalentes.
 fingerprint = scalar(f"""
   SELECT sha2(concat_ws('|',
     cast((SELECT sum(pmod(xxhash64(cliente_id,nombre_completo,email,pais_codigo,segmento_id,estado),1000000007)) FROM {fq}.silver_clientes) AS STRING),
@@ -255,7 +255,7 @@ fingerprint = scalar(f"""
 certification_table = "ops_synthetic_certifications"
 if spark.catalog.tableExists(f"{catalog}.{schema}.{certification_table}"):
     if table_property(certification_table, "data_classification") != "synthetic" or table_property(certification_table, "generated_by") != "quetzal-customer-kit":
-        failures.append("ops_synthetic_certifications exists but is not owned by this synthetic generator")
+        failures.append("ops_synthetic_certifications existe pero no pertenece a este generador sintético")
 else:
     sql(f"""
     CREATE TABLE {fq}.{certification_table} (
@@ -277,7 +277,7 @@ if spark.catalog.tableExists(f"{catalog}.{schema}.{certification_table}"):
       WHERE customer_count={customer_count} AND seed={seed} AND anchor_date=DATE('{anchor_date}')
         AND status='CERTIFIED' AND dataset_fingerprint <> '{fingerprint}'"""))
     if conflicting:
-        failures.append("determinism check failed: same inputs produced a different dataset fingerprint")
+        failures.append("falló el control de determinismo: las mismas entradas produjeron otro fingerprint")
 
 status = "CERTIFIED" if not failures else "FAILED"
 generation_run_id = next(iter(generation_run_ids), "UNKNOWN")
@@ -298,7 +298,7 @@ report = {
 print(json.dumps(report, ensure_ascii=False, indent=2))
 
 if failures:
-    raise RuntimeError("Synthetic demo-data certification failed: " + "; ".join(failures))
+    raise RuntimeError("La certificación de datos sintéticos falló: " + "; ".join(failures))
 
 certification_id = uuid4().hex
 sql(f"""
