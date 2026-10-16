@@ -19,3 +19,5 @@ env:
     value: "<warehouse_id>"
   - name: QUETZAL_AI_MODEL
     value: "<catalog>.<schema>.<model_service>"
+  - name: QUETZAL_ALLOW_LOCAL_IDENTITY_FALLBACK
+    value: "false"

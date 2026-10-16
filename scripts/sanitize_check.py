@@ -73,9 +73,10 @@ def main() -> None:
                 failures.append(f"host de workspace: {relative}")
 
     if failures:
-        print("La verificación de seguridad falló:")
-        for failure in sorted(set(failures)):
-            print(f"- {failure}")
+        # No publique coincidencias ni rutas en logs de CI: incluso un hallazgo
+        # parcial puede facilitar la reconstrucción de un secreto.
+        print(f"La verificación de seguridad detectó {len(set(failures))} incidencia(s).")
+        print("Revise el repositorio localmente sin copiar los valores a tickets o logs.")
         raise SystemExit(1)
     print(f"Verificación de seguridad aprobada en {len(files())} archivos de texto")
 

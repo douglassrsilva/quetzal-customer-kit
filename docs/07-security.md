@@ -11,6 +11,8 @@
 - investigación externa y webhooks en modo opt-in;
 - dependencias revisadas y SBOM por release;
 - logs sin tokens, credenciales ni contenido íntegro de clientes.
+- identidad ausente o no verificada bloqueada de forma predeterminada; el fallback local solo
+  puede habilitarse explícitamente fuera de Databricks Apps.
 
 La disponibilidad de estas funciones depende del plan de GitHub y de la visibilidad del repositorio. Si una protección no está disponible, documente la excepción y aplique el control equivalente en su proceso de cambios.
 
@@ -21,6 +23,13 @@ La disponibilidad de estas funciones depende del plan de GitHub y de la visibili
 ## PII
 
 El modo sintético utiliza identidades ficticias. En el modo `customer`, la PII permanece en el workspace del cliente y solo la consultan usuarios autorizados. Las capturas, los logs y los ejemplos utilizan referencias enmascaradas.
+
+## Identidad de la aplicación
+
+Databricks Apps entrega la identidad mediante headers del proxy administrado. Si
+estos headers no están presentes, la API responde `401` y no concede un rol
+implícito. `QUETZAL_ALLOW_LOCAL_IDENTITY_FALLBACK=true` existe únicamente para
+pruebas locales aisladas; no lo configure en un despliegue de Databricks Apps.
 
 ## Divulgación
 

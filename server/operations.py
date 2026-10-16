@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import math
 import os
 import time
@@ -35,6 +36,7 @@ from .platform import SqlExecutionError, execute_sql, run_sql, workspace_client
 
 router = APIRouter(prefix="/api", tags=["operations"])
 fanout = ThreadPoolExecutor(max_workers=4, thread_name_prefix="quetzal-ops")
+log = logging.getLogger("quetzal.operations")
 
 CAUSE_LABELS = {
     "THERMAL": "Sobrecarga térmica del equipo",
@@ -143,14 +145,16 @@ def _actor(request: Request) -> str:
         value = request.headers.get(header)
         if value:
             return value[:200]
-    return "quetzal-operator"
+    if os.getenv("QUETZAL_ALLOW_LOCAL_IDENTITY_FALLBACK", "false").lower() == "true":
+        return "quetzal-operator"
+    raise HTTPException(401, "No fue posible verificar la identidad del usuario.")
 
 
 def _access(request: Request) -> dict:
     """Resuelve la identidad de la aplicación en roles y alcance territorial gobernados."""
     actor = _actor(request)
     configured_admins = {item.strip().lower() for item in os.getenv("QUETZAL_ADMIN_USERS", "").split(",") if item.strip()}
-    # Las pruebas locales y de contrato no envían headers de identidad de Databricks.
+    # El operador local solo existe cuando el fallback de desarrollo fue habilitado explícitamente.
     if actor == "quetzal-operator" or actor.lower() in configured_admins:
         return {"actor": actor, "roles": ["ADMIN", "NOC_OPERATOR", "ACTION_APPROVER", "CARE_AGENT"], "countries": []}
     rows = run_sql(
@@ -451,7 +455,8 @@ def _check_result(name: str, check) -> dict:
     try:
         status, detail = check()
     except Exception as exc:  # noqa: BLE001 - dependency SDKs expose heterogeneous failures
-        status, detail = "DEGRADED", f"{type(exc).__name__}: {str(exc)[:240]}"
+        log.warning("preflight_check_failed name=%s error_type=%s", name, type(exc).__name__)
+        status, detail = "DEGRADED", {"reason": "La dependencia no está disponible temporalmente."}
     return {
         "name": name,
         "status": status,
@@ -464,7 +469,7 @@ def _preflight_checks(access: dict) -> list[dict]:
     """Comprueba dependencias en modo de solo lectura, sin invocar modelos ni jobs."""
     def warehouse():
         run_sql("SELECT 1 AS preflight", cache_ttl=0)
-        return "READY", {"warehouse_id": settings.warehouse_id, "connectivity": "SQL_OK"}
+        return "READY", {"configured": True, "connectivity": "SQL_OK"}
 
     def genie():
         client = workspace_client()
@@ -474,7 +479,7 @@ def _preflight_checks(access: dict) -> list[dict]:
                 spaces.append({"space": key, "status": "NOT_CONFIGURED"})
                 continue
             client.api_client.do("GET", f"/api/2.0/genie/spaces/{item['id']}")
-            spaces.append({"space": key, "status": "READY", "space_id": item["id"]})
+            spaces.append({"space": key, "status": "READY"})
         status = "READY" if spaces and all(item["status"] == "READY" for item in spaces) else "NOT_CONFIGURED"
         return status, {"spaces": spaces}
 
@@ -482,8 +487,8 @@ def _preflight_checks(access: dict) -> list[dict]:
         if not settings.ai_model or not settings.ai_url:
             return "NOT_CONFIGURED", {"reason": "Falta el modelo de IA o la URL del gateway"}
         return "READY", {
-            "model": settings.ai_model,
-            "gateway": settings.ai_url,
+            "model_configured": True,
+            "gateway_configured": True,
             "validation_mode": "CONFIGURATION_ONLY",
         }
 
@@ -493,29 +498,29 @@ def _preflight_checks(access: dict) -> list[dict]:
         with conversation_store._connection() as connection, connection.cursor() as cursor:
             cursor.execute("SELECT 1")
             cursor.fetchone()
-        return "READY", {"project": conversation_store.project, "database": conversation_store.database, "connectivity": "POSTGRES_OK"}
+        return "READY", {"configured": True, "connectivity": "POSTGRES_OK"}
 
     def managed_memory():
         if not managed_agent_memory.enabled:
             return "NOT_CONFIGURED", {"reason": "Managed Agent Memory no está configurado"}
         workspace_client().api_client.do("GET", f"/api/2.1/unity-catalog/memory-stores/{managed_agent_memory.store_name}")
-        return "READY", {"store": managed_agent_memory.store_name, "probe": "METADATA_ONLY"}
+        return "READY", {"configured": True, "probe": "METADATA_ONLY"}
 
     def dashboard():
         if not settings.dashboard_id:
             return "NOT_CONFIGURED", {"reason": "Falta el ID del dashboard"}
         workspace_client().api_client.do("GET", f"/api/2.0/lakeview/dashboards/{settings.dashboard_id}")
-        return "READY", {"dashboard_id": settings.dashboard_id, "probe": "METADATA_ONLY"}
+        return "READY", {"configured": True, "probe": "METADATA_ONLY"}
 
     def rbac():
         if not access.get("roles"):
-            return "FAILED", {"actor": access.get("actor"), "reason": "El usuario no tiene un rol operativo activo"}
-        return "READY", {"actor": access.get("actor"), "roles": access["roles"], "country_scope": access.get("countries") or ["ALL"]}
+            return "FAILED", {"reason": "El usuario no tiene un rol operativo activo"}
+        return "READY", {"roles": access["roles"], "country_scope": access.get("countries") or ["ALL"]}
 
     def graph_snapshot():
         try:
             rows = run_sql(
-                "SELECT run_id, status, completed_at FROM ops_graph_run_log WHERE status = 'SUCCEEDED' ORDER BY completed_at DESC LIMIT 1",
+                "SELECT status, completed_at FROM ops_graph_run_log WHERE status = 'SUCCEEDED' ORDER BY completed_at DESC LIMIT 1",
                 cache_ttl=0,
             )
         except SqlExecutionError:

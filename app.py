@@ -229,7 +229,8 @@ def _headers() -> dict[str, str]:
 def _raise_upstream(response: http_requests.Response, service: str) -> None:
     if response.status_code < 400:
         return
-    log.error("%s upstream failure status=%s body=%s", service, response.status_code, response.text[:1000])
+    # El cuerpo puede contener prompts, datos gobernados o detalles del proveedor.
+    log.error("%s upstream failure status=%s", service, response.status_code)
     if response.status_code in (401, 403):
         detail = f"{service} no está autorizado para esta operación."
     elif response.status_code == 429:
@@ -667,8 +668,8 @@ def genie_query(payload: GenieQueryRequest):
         raise HTTPException(400, "Espacio inválido")
 
     log.info(
-        "genie_start trace_id=%s space=%s deep=%s question=%r",
-        trace_id, space_key, payload.deep, question[:240],
+        "genie_start trace_id=%s space=%s deep=%s question_chars=%s",
+        trace_id, space_key, payload.deep, len(question),
     )
     conversation_id = (
         _validate_resource_id(payload.conversation_id, "conversation_id")
@@ -929,8 +930,8 @@ def genie_result(space_key: GenieSpace, conv_id: str, msg_id: str):
         error = d.get("error") or d.get("failure_reason") or {}
         result["error"] = error if isinstance(error, str) else error.get("message", "")
         log.warning(
-            "genie_terminal space=%s conversation_id=%s message_id=%s status=%s error=%r",
-            space_key, conv_id, msg_id, status, result.get("error", "")[:500],
+            "genie_terminal space=%s conversation_id=%s message_id=%s status=%s error_present=%s",
+            space_key, conv_id, msg_id, status, bool(result.get("error")),
         )
     return result
 
@@ -992,13 +993,14 @@ _CHAT_SYSTEM = (
 
 def _chat_actor(request: Request | None) -> str:
     """Utiliza solo headers de identidad verificados para particionar la memoria."""
-    if request is None:
+    if request is not None:
+        for header in ("x-forwarded-email", "x-databricks-user-email", "x-forwarded-user"):
+            value = request.headers.get(header)
+            if value:
+                return value[:200]
+    if os.getenv("QUETZAL_ALLOW_LOCAL_IDENTITY_FALLBACK", "false").lower() == "true":
         return "quetzal-operator"
-    for header in ("x-forwarded-email", "x-databricks-user-email", "x-forwarded-user"):
-        value = request.headers.get(header)
-        if value:
-            return value[:200]
-    return "quetzal-operator"
+    raise HTTPException(401, "No fue posible verificar la identidad del usuario.")
 
 
 def _turn_tool_names(turn: dict[str, Any]) -> list[str]:
@@ -1170,9 +1172,9 @@ def ai_chat(request_data: ChatRequest, request: Request = None):
         disable_tools=disable_tools,
     )
     log.info(
-        "iq_start trace_id=%s conversation_id=%s actor=%s mode=%s tools=%s history=%s question=%r",
-        trace_id, conversation_id, actor, resolved_mode,
-        [tool["name"] for tool in selected_tools], len(history), message[:240],
+        "iq_start trace_id=%s conversation_id=%s mode=%s tools=%s history=%s question_chars=%s",
+        trace_id, conversation_id, resolved_mode,
+        [tool["name"] for tool in selected_tools], len(history), len(message),
     )
 
     user_input = [{"role": "user", "content": [{"type": "input_text",
@@ -1245,7 +1247,7 @@ def ai_chat(request_data: ChatRequest, request: Request = None):
             else:
                 web_search_used = True
                 query = str(args.get("query", message))[:500]
-                log.info("Agent round %s: web_search(%s)", _round + 1, query)
+                log.info("Agent round %s: web_search query_chars=%s", _round + 1, len(query))
                 tool_events.append({"tool": "web_search", "input": query})
                 tool_result = _execute_search(query)
                 if tool_result == '[]':

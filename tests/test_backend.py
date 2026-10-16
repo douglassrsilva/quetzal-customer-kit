@@ -1,10 +1,13 @@
 import inspect
+import os
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
+
+os.environ.setdefault("QUETZAL_ALLOW_LOCAL_IDENTITY_FALLBACK", "true")
 
 import app as quetzal
 from server import connectors, operations, platform
@@ -19,6 +22,19 @@ from server.models import (
 )
 
 client = TestClient(quetzal.app)
+
+
+def test_missing_identity_fails_closed_outside_local_development():
+    with patch.dict(os.environ, {"QUETZAL_ALLOW_LOCAL_IDENTITY_FALLBACK": "false"}):
+        response = client.get("/api/me")
+    assert response.status_code == 401
+
+
+def test_local_identity_fallback_is_explicit_opt_in():
+    with patch.dict(os.environ, {"QUETZAL_ALLOW_LOCAL_IDENTITY_FALLBACK": "true"}):
+        response = client.get("/api/me")
+    assert response.status_code == 200
+    assert response.json()["email"] == "quetzal-operator"
 
 
 def test_health_and_security_headers():
